@@ -1,0 +1,13 @@
+- [ ] Make the default view be week 1 of the upcoming season when current date is past June 1
+- [ ] Use logos for TV channels
+- [ ] Only show regular season weeks (don't need to show any weeks in December)
+- [ ] Remove bottom border from TV network cells that are stacked. (so the ESPN+ cells don't all have border bottom on the left col)
+- [ ] Some of the team logos aren't working
+  - [ ] usf
+  - [ ] Charlotte
+- [ ] Put ESPN+ always as the second to last item, before TBD
+- [ ] Make the season year a dropdown instead of text input
+- [ ] Screenshot view on mobile can get a bit squished with the table headers
+- [ ] Protect from bots.
+  - [ ] I think Cloudflare has some kind of Bot Protect mode where you can prevent bots from hitting it at all.
+  - [ ] Set up reasonable rate limits. Is it possible to spam the API, or will the caching handle it?
