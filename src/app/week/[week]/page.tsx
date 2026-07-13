@@ -3,10 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ViewingGuideTable } from "@/components/ViewingGuideTable";
 import { WeekNav } from "@/components/WeekNav";
-import {
-  buildViewingGuide,
-  getAvailableWeeks,
-} from "@/lib/cfbd/build-guide";
+import { buildViewingGuide, getAvailableWeeks } from "@/lib/cfbd/build-guide";
 import { formatUsageLine, getCfbdUsage } from "@/lib/cfbd/usage";
 import { getDefaultSeasonYear } from "@/lib/time";
 
@@ -115,10 +112,7 @@ export default async function WeekPage({ params, searchParams }: PageProps) {
   return (
     <main className="mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
       <header className="mb-8">
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-700">
-          College Football Viewing Guide
-        </p>
-        <div className="mt-2 flex flex-wrap items-end justify-between gap-4">
+        <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="text-3xl font-black tracking-tight text-zinc-900 sm:text-4xl">
               Week {week}
@@ -128,23 +122,13 @@ export default async function WeekPage({ params, searchParams }: PageProps) {
             </h1>
             <p className="mt-1 text-sm text-zinc-500">
               {data.saturdayLabel
-                ? `${data.saturdayLabel} · `
+                ? `${data.saturdayLabel}`
                 : data.weekLabel
-                  ? `${data.weekLabel} · `
+                  ? `${data.weekLabel}`
                   : ""}
-              Saturday slate · ET
             </p>
           </div>
-          <p className="rounded-full bg-zinc-100 px-3 py-1 text-sm font-medium text-zinc-600">
-            {data.gameCount} Saturday game{data.gameCount === 1 ? "" : "s"}
-          </p>
         </div>
-        <p className="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-600">
-          Saturday FBS kickoffs only — the calendar starts at noon unless an
-          earlier game needs a column (e.g. 11am). Matchup bars span 3 hours,
-          with quarter-hour kickoff alignment. Scroll horizontally on smaller
-          screens.
-        </p>
       </header>
 
       <div className="mb-6">
@@ -163,7 +147,7 @@ export default async function WeekPage({ params, searchParams }: PageProps) {
         >
           CollegeFootballData.com
         </a>
-        . Saturday kickoffs in America/New_York; bars assume a 3-hour game.
+        . Saturday kickoffs in Eastern Time.
       </footer>
     </main>
   );

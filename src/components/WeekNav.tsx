@@ -64,11 +64,7 @@ export function WeekNav({
         })}
       </div>
 
-      <form
-        action="/week"
-        method="get"
-        className="flex items-center gap-2"
-      >
+      <form action="/week" method="get" className="flex items-center gap-2">
         <label htmlFor="year" className="text-xs font-medium text-zinc-500">
           Season
         </label>
@@ -84,7 +80,7 @@ export function WeekNav({
         />
         <button
           type="submit"
-          className="rounded-md bg-zinc-900 px-2.5 py-1 text-xs font-semibold text-white transition hover:bg-zinc-700"
+          className="rounded-md bg-zinc-900 px-2.5 py-1 text-xs font-semibold text-white cursor-pointer transition hover:bg-zinc-700"
         >
           Go
         </button>

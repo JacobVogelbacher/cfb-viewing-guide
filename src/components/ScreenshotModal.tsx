@@ -82,7 +82,7 @@ export function ScreenshotModal({
             {data.saturdayLabel ? ` · ${data.saturdayLabel}` : ""}
           </p>
           <p className="text-[11px] text-zinc-400">
-            Entire calendar fits on screen — use your device screenshot
+            Take a screenshot with your device
           </p>
         </div>
         <button

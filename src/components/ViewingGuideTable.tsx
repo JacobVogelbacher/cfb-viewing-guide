@@ -69,7 +69,7 @@ export function ViewingGuideTable({ data }: { data: ViewingGuideData }) {
         <button
           type="button"
           onClick={() => setScreenshotOpen(true)}
-          className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-800"
+          className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-3 py-2 text-sm font-semibold text-white shadow-sm cursor-pointer transition hover:bg-emerald-800"
         >
           <svg
             className="h-4 w-4"
@@ -87,12 +87,6 @@ export function ViewingGuideTable({ data }: { data: ViewingGuideData }) {
           </svg>
           Screenshot view
         </button>
-
-        <p className="w-full text-xs text-zinc-500 sm:ml-auto sm:w-auto sm:text-right">
-          {fitToScreen
-            ? "Browsing: calendar matches page width"
-            : "Open Screenshot view to fit the full slate on your device, then capture with the OS"}
-        </p>
       </div>
 
       <div
