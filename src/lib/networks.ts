@@ -127,3 +127,33 @@ export const NETWORK_COLORS: Record<string, string> = {
   FS2: "#1B3FA0",
   "Prime Video": "#00A8E1",
 };
+
+/**
+ * Local SVG logos under /public/networks.
+ * Keyed by canonical outlet name from normalizeOutlet().
+ *
+ * Square marks (ABC, CBS) get a larger display box via `boxScale` so they
+ * don't look undersized next to wide wordmarks — no CSS transform.
+ */
+export type NetworkLogoMeta = {
+  src: string;
+  /**
+   * Multiplier on the logo display box (width & height). Use for square
+   * marks that under-fill a wide short cell with object-fit:contain.
+   * Default 1.
+   */
+  boxScale?: number;
+};
+
+export const NETWORK_LOGOS: Record<string, NetworkLogoMeta> = {
+  NBC: { src: "/networks/nbc.svg" },
+  CBS: { src: "/networks/cbs.svg", boxScale: 1.2 },
+  ABC: { src: "/networks/abc.svg", boxScale: 1.2 },
+  // Wordmark; viewBox tight-cropped vertically (was letterboxed on 24×24)
+  FOX: { src: "/networks/fox.svg" },
+  ESPN: { src: "/networks/espn.svg" },
+};
+
+export function getNetworkLogo(network: string): NetworkLogoMeta | null {
+  return NETWORK_LOGOS[network] ?? null;
+}

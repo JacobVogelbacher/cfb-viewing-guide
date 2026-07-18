@@ -1,8 +1,64 @@
 import type { ViewingGuideData } from "@/lib/cfbd/types";
 import type { NetworkLane } from "@/lib/cfbd/expand-rows";
-import { NETWORK_COLORS } from "@/lib/networks";
+import { getNetworkLogo, NETWORK_COLORS } from "@/lib/networks";
 import type { CalendarLayout } from "./calendar-layout";
 import { MatchupCard } from "./MatchupCard";
+
+function NetworkLabel({
+  network,
+  displayName,
+  accent,
+  scale,
+  networkFontPx,
+  networkBadgeMinH,
+  networkBadgeMinW,
+  cellPadY,
+}: {
+  network: string;
+  displayName: string;
+  accent: string;
+  scale: number;
+  networkFontPx: number;
+  networkBadgeMinH: number;
+  networkBadgeMinW: number;
+  cellPadY: number;
+}) {
+  const logo = getNetworkLogo(network);
+  if (logo) {
+    const boxScale = logo.boxScale ?? 1;
+    const logoH = Math.max(16, Math.round(30 * scale * boxScale));
+    const logoW = Math.max(40, Math.round(80 * scale * boxScale));
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- local static SVG from /public
+      <img
+        src={logo.src}
+        alt={displayName}
+        title={displayName}
+        width={logoW}
+        height={logoH}
+        className="max-w-full object-contain object-center"
+        style={{ width: logoW, height: logoH }}
+      />
+    );
+  }
+
+  return (
+    <span
+      className="inline-flex max-w-full items-center justify-center rounded px-1 font-extrabold leading-tight tracking-tight text-white"
+      style={{
+        backgroundColor: accent,
+        fontSize: networkFontPx,
+        minHeight: networkBadgeMinH,
+        minWidth: networkBadgeMinW,
+        paddingTop: Math.max(1, cellPadY / 2),
+        paddingBottom: Math.max(1, cellPadY / 2),
+      }}
+      title={displayName}
+    >
+      {displayName}
+    </span>
+  );
+}
 
 export function CalendarGrid({
   data,
@@ -116,20 +172,16 @@ export function CalendarGrid({
               }}
             >
               {showNetworkLabel ? (
-                <span
-                  className="inline-flex max-w-full items-center justify-center rounded px-1 font-extrabold leading-tight tracking-tight text-white"
-                  style={{
-                    backgroundColor: accent,
-                    fontSize: networkFontPx,
-                    minHeight: networkBadgeMinH,
-                    minWidth: networkBadgeMinW,
-                    paddingTop: Math.max(1, cellPadY / 2),
-                    paddingBottom: Math.max(1, cellPadY / 2),
-                  }}
-                  title={lane.displayName}
-                >
-                  {lane.displayName}
-                </span>
+                <NetworkLabel
+                  network={lane.network}
+                  displayName={lane.displayName}
+                  accent={accent}
+                  scale={scale}
+                  networkFontPx={networkFontPx}
+                  networkBadgeMinH={networkBadgeMinH}
+                  networkBadgeMinW={networkBadgeMinW}
+                  cellPadY={cellPadY}
+                />
               ) : (
                 <span className="sr-only">
                   {lane.displayName} (row {lane.laneIndex + 1})
