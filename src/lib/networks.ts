@@ -164,6 +164,8 @@ export const NETWORK_LOGOS: Record<string, NetworkLogoMeta> = {
   // Circular mark — same box boost as ABC/CBS
   TNT: { src: "/networks/tnt.svg", boxScale: 1.2 },
   "ESPN+": { src: "/networks/espn-plus.svg" },
+  "USA Network": { src: "/networks/usa.svg" },
+  Peacock: { src: "/networks/peacock.svg" },
 };
 
 export function getNetworkLogo(network: string): NetworkLogoMeta | null {
