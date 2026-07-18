@@ -15,6 +15,53 @@ export function getDefaultSeasonYear(now = new Date()): number {
   return now.getMonth() >= 5 ? now.getFullYear() : now.getFullYear() - 1;
 }
 
+/** How many prior seasons are available (inclusive of max: max − lookback … max). */
+export const SEASON_YEAR_LOOKBACK = 5;
+
+/** Newest season year the app will load (current / upcoming). */
+export function getMaxSeasonYear(now = new Date()): number {
+  return getDefaultSeasonYear(now);
+}
+
+/** Oldest season year the app will load. */
+export function getMinSeasonYear(now = new Date()): number {
+  return getMaxSeasonYear(now) - SEASON_YEAR_LOOKBACK;
+}
+
+/** Allowed season years, newest first (for dropdowns). */
+export function getAllowedSeasonYears(now = new Date()): number[] {
+  const max = getMaxSeasonYear(now);
+  const min = getMinSeasonYear(now);
+  const years: number[] = [];
+  for (let y = max; y >= min; y--) years.push(y);
+  return years;
+}
+
+export function isAllowedSeasonYear(
+  year: number,
+  now = new Date(),
+): boolean {
+  return (
+    Number.isInteger(year) &&
+    year >= getMinSeasonYear(now) &&
+    year <= getMaxSeasonYear(now)
+  );
+}
+
+/**
+ * Parse a year query param. Returns null if missing/invalid/out of range
+ * (callers should not fetch CFBD for null).
+ */
+export function parseAllowedSeasonYear(
+  raw: string | number | null | undefined,
+  now = new Date(),
+): number | null {
+  if (raw === null || raw === undefined || raw === "") return null;
+  const year = typeof raw === "number" ? raw : Number(raw);
+  if (!Number.isInteger(year) || !isAllowedSeasonYear(year, now)) return null;
+  return year;
+}
+
 /**
  * US Thanksgiving: 4th Thursday of November (calendar date in Eastern Time).
  * Used to cap the regular-season week list through rivalry / Thanksgiving weekend.

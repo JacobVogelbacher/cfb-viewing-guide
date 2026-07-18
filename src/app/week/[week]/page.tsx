@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ViewingGuideTable } from "@/components/ViewingGuideTable";
 import { WeekNav } from "@/components/WeekNav";
 import { buildViewingGuide, getAvailableWeeks } from "@/lib/cfbd/build-guide";
 import { formatUsageLine, getCfbdUsage } from "@/lib/cfbd/usage";
-import { getDefaultSeasonYear } from "@/lib/time";
+import {
+  getDefaultSeasonYear,
+  parseAllowedSeasonYear,
+} from "@/lib/time";
 
 type PageProps = {
   params: Promise<{ week: string }>;
@@ -19,7 +22,8 @@ export async function generateMetadata({
   const { week: weekParam } = await params;
   const { year: yearParam } = await searchParams;
   const week = Number(weekParam);
-  const year = yearParam ? Number(yearParam) : getDefaultSeasonYear();
+  const year =
+    parseAllowedSeasonYear(yearParam) ?? getDefaultSeasonYear();
   return {
     title: `Week ${week} Viewing Guide · ${year} CFB`,
     description: `College football TV schedule for Week ${week} of the ${year} season — network-by-network, time-slot grid.`,
@@ -30,13 +34,13 @@ export default async function WeekPage({ params, searchParams }: PageProps) {
   const { week: weekParam } = await params;
   const { year: yearParam } = await searchParams;
 
-  const week = Number(weekParam);
-  if (!Number.isInteger(week) || week < 0 || week > 20) {
-    notFound();
-  }
-
-  const year = yearParam ? Number(yearParam) : getDefaultSeasonYear();
-  if (!Number.isInteger(year) || year < 2000 || year > 2100) {
+  // Explicit year outside the allowed window → 404, no CFBD calls.
+  // Missing year → default current/upcoming season.
+  const year =
+    yearParam === undefined || yearParam === ""
+      ? getDefaultSeasonYear()
+      : parseAllowedSeasonYear(yearParam);
+  if (year == null) {
     notFound();
   }
 
@@ -74,13 +78,42 @@ export default async function WeekPage({ params, searchParams }: PageProps) {
     );
   }
 
-  let data;
   let weeks: number[];
   try {
-    [data, weeks] = await Promise.all([
-      buildViewingGuide({ year, week }),
-      getAvailableWeeks(year),
-    ]);
+    weeks = await getAvailableWeeks(year);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    return (
+      <main className="mx-auto max-w-3xl px-4 py-16">
+        <div className="rounded-xl border border-red-200 bg-red-50 p-8">
+          <h1 className="text-xl font-bold text-red-950">
+            Failed to load schedule
+          </h1>
+          <p className="mt-3 text-sm text-red-900/80">{message}</p>
+          <Link
+            href="/"
+            className="mt-6 inline-block text-sm font-semibold text-red-800 underline"
+          >
+            Back home
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
+  if (weeks.length === 0) {
+    weeks = [1];
+  }
+
+  const week = Number(weekParam);
+  // Non-existent weeks (e.g. /week/20, conference-champ slots we hide) → week 1.
+  if (!Number.isInteger(week) || !weeks.includes(week)) {
+    redirect(`/week/${weeks[0]}?year=${year}`);
+  }
+
+  let data;
+  try {
+    data = await buildViewingGuide({ year, week });
     // Snapshot after work so logs reflect any network calls made for this render.
     console.info(
       `[CFBD] guide week=${week} year=${year} · ${formatUsageLine(getCfbdUsage())}`,
@@ -103,10 +136,6 @@ export default async function WeekPage({ params, searchParams }: PageProps) {
         </div>
       </main>
     );
-  }
-
-  if (weeks.length === 0) {
-    weeks = [week];
   }
 
   return (

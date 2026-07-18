@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { isAllowedSeasonYear } from "@/lib/time";
 import {
   cacheKey,
   CFBD_CACHE_TTL_SECONDS,
@@ -17,6 +18,15 @@ import type {
 import { logCfbdUsage, recordCfbdResponse } from "./usage";
 
 const CFBD_BASE_URL = "https://api.collegefootballdata.com";
+
+/** Hard gate: never hit CFBD for seasons outside the allowed window. */
+function assertAllowedSeasonYear(year: number, context: string): void {
+  if (!isAllowedSeasonYear(year)) {
+    throw new Error(
+      `Season year ${year} is outside the allowed range (${context}).`,
+    );
+  }
+}
 
 function getApiKey(): string {
   const key = process.env.CFBD_API_KEY;
@@ -118,6 +128,7 @@ async function cfbdFetch<T>(
 export const getCalendar = cache(async function getCalendar(
   year: number,
 ): Promise<CfbdCalendarWeek[]> {
+  assertAllowedSeasonYear(year, "getCalendar");
   return cfbdFetch<CfbdCalendarWeek[]>(
     "/calendar",
     { year },
@@ -131,6 +142,7 @@ export const getGames = cache(async function getGames(options: {
   seasonType?: SeasonType;
   classification?: DivisionClassification;
 }): Promise<CfbdGame[]> {
+  assertAllowedSeasonYear(options.year, "getGames");
   const seasonType = options.seasonType ?? "regular";
   const classification = options.classification ?? "fbs";
   return cfbdFetch<CfbdGame[]>(
@@ -152,6 +164,7 @@ export const getGameMedia = cache(async function getGameMedia(options: {
   classification?: DivisionClassification;
   mediaType?: string;
 }): Promise<CfbdGameMedia[]> {
+  assertAllowedSeasonYear(options.year, "getGameMedia");
   const seasonType = options.seasonType ?? "regular";
   const classification = options.classification ?? "fbs";
   return cfbdFetch<CfbdGameMedia[]>(
@@ -172,6 +185,9 @@ export const getTeams = cache(async function getTeams(options?: {
   year?: number;
   classification?: DivisionClassification;
 }): Promise<CfbdTeam[]> {
+  if (options?.year != null) {
+    assertAllowedSeasonYear(options.year, "getTeams");
+  }
   return cfbdFetch<CfbdTeam[]>(
     "/teams",
     {

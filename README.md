@@ -40,6 +40,8 @@ A Next.js college football **TV viewing guide** powered by the [College Football
 
 Default season year: current calendar year from June 1 onward (week 1 of the upcoming season until games start); otherwise the previous year.
 
+Season years are limited to the current/upcoming season and the 5 prior seasons. Years outside that window return 404 and never call the CFBD API.
+
 ## Stack
 
 - Next.js (App Router) + TypeScript + Tailwind CSS
