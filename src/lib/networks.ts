@@ -17,6 +17,7 @@ const NETWORK_ORDER = [
   "truTV",
   "Peacock",
   "ESPN+",
+  "MW+",
   // Remaining outlets (alphabetized via compare when not listed above)
   "FS2",
   "Prime Video",
@@ -73,6 +74,11 @@ const OUTLET_ALIASES: Record<string, string> = {
   pac12: "PAC12",
   "pac-12 network": "PAC12",
   "pac-12 net": "PAC12",
+  "mw+": "MW+",
+  "mw plus": "MW+",
+  "mountain west+": "MW+",
+  "mountain west plus": "MW+",
+  "mountain west network": "MW+",
 };
 
 export function normalizeOutlet(outlet: string | null | undefined): string {
@@ -124,6 +130,7 @@ export const NETWORK_COLORS: Record<string, string> = {
   truTV: "#FF6600",
   Peacock: "#000000",
   "ESPN+": "#D00027",
+  "MW+": "#4F2D7F",
   FS2: "#1B3FA0",
   "Prime Video": "#00A8E1",
 };
@@ -166,6 +173,9 @@ export const NETWORK_LOGOS: Record<string, NetworkLogoMeta> = {
   "ESPN+": { src: "/networks/espn-plus.svg" },
   "USA Network": { src: "/networks/usa.svg" },
   Peacock: { src: "/networks/peacock.svg" },
+  // Near-square conference mark
+  "MW+": { src: "/networks/mw.svg", boxScale: 1.2 },
+  truTV: { src: "/networks/trutv.svg" },
 };
 
 export function getNetworkLogo(network: string): NetworkLogoMeta | null {
