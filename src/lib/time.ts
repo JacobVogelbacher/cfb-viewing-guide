@@ -15,6 +15,18 @@ export function getDefaultSeasonYear(now = new Date()): number {
   return now.getMonth() >= 5 ? now.getFullYear() : now.getFullYear() - 1;
 }
 
+/**
+ * US Thanksgiving: 4th Thursday of November (calendar date in Eastern Time).
+ * Used to cap the regular-season week list through rivalry / Thanksgiving weekend.
+ */
+export function usThanksgivingDate(year: number): Date {
+  // Noon UTC on the 1st avoids DST edge cases when counting weekdays.
+  const nov1 = new Date(Date.UTC(year, 10, 1, 12, 0, 0));
+  const dow = nov1.getUTCDay(); // 0=Sun … 4=Thu
+  const firstThursday = dow <= 4 ? 1 + (4 - dow) : 1 + (11 - dow);
+  return new Date(Date.UTC(year, 10, firstThursday + 21, 12, 0, 0));
+}
+
 export type EasternParts = {
   weekday: string;
   year: number;

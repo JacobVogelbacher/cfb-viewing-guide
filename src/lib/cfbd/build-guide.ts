@@ -7,6 +7,7 @@ import {
   GAME_DURATION_MINUTES,
   resolveTimelineStartHour,
   saturdayMinutesFromMidnight,
+  usThanksgivingDate,
 } from "@/lib/time";
 import { CFBD_CACHE_TTL_SECONDS, scheduleCacheTier } from "./cache";
 import { getCalendar, getGameMedia, getGames, getTeams } from "./client";
@@ -236,12 +237,38 @@ export async function buildViewingGuide(options: {
   )();
 }
 
+/**
+ * Regular-season weeks through Thanksgiving / rivalry weekend only.
+ *
+ * CFBD keeps later slots as seasonType "regular" (conference championships,
+ * Army–Navy, and sometimes an empty gap week after Thanksgiving). Those all
+ * start after Thanksgiving and are dropped from nav + default week.
+ *
+ * Year-dependent: e.g. 2025 Thanksgiving = week 14; 2026 = week 13.
+ */
+function isDisplayedRegularWeek(
+  week: { seasonType: SeasonType; startDate: string },
+  thanksgiving: Date,
+): boolean {
+  if (week.seasonType !== "regular") return false;
+  const start = new Date(week.startDate);
+  if (Number.isNaN(start.getTime())) return false;
+  // Keep weeks whose Monday start is on/before Thanksgiving (that week's Sat
+  // is rivalry weekend). Drop weeks that begin after Thanksgiving.
+  return start.getTime() <= thanksgiving.getTime();
+}
+
+async function getDisplayedRegularWeeks(year: number) {
+  const calendar = await getCalendar(year);
+  const thanksgiving = usThanksgivingDate(year);
+  return calendar
+    .filter((w) => isDisplayedRegularWeek(w, thanksgiving))
+    .sort((a, b) => a.week - b.week);
+}
+
 export async function resolveDefaultWeek(year: number): Promise<number> {
   try {
-    const calendar = await getCalendar(year);
-    const regular = calendar
-      .filter((c) => c.seasonType === "regular")
-      .sort((a, b) => a.week - b.week);
+    const regular = await getDisplayedRegularWeeks(year);
 
     if (regular.length === 0) return 1;
 
@@ -262,12 +289,10 @@ export async function resolveDefaultWeek(year: number): Promise<number> {
 
 export async function getAvailableWeeks(year: number): Promise<number[]> {
   try {
-    const calendar = await getCalendar(year);
-    return calendar
-      .filter((c) => c.seasonType === "regular")
-      .map((c) => c.week)
-      .sort((a, b) => a - b);
+    const regular = await getDisplayedRegularWeeks(year);
+    return regular.map((c) => c.week);
   } catch {
-    return Array.from({ length: 15 }, (_, i) => i + 1);
+    // Typical FBS regular season through late November (no December slots).
+    return Array.from({ length: 14 }, (_, i) => i + 1);
   }
 }
