@@ -10,8 +10,9 @@ export const GAME_DURATION_MINUTES = 180;
 export const DEFAULT_TIMELINE_START_HOUR = 12; // noon ET
 
 export function getDefaultSeasonYear(now = new Date()): number {
-  // CFB season year is the calendar year of the fall. Before August, prefer prior season.
-  return now.getMonth() >= 7 ? now.getFullYear() : now.getFullYear() - 1;
+  // CFB season year is the calendar year of the fall.
+  // From June 1 onward, default to the upcoming season; before that, prior season.
+  return now.getMonth() >= 5 ? now.getFullYear() : now.getFullYear() - 1;
 }
 
 export type EasternParts = {

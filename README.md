@@ -38,7 +38,7 @@ A Next.js college football **TV viewing guide** powered by the [College Football
 | `/week/2?year=2025` | Week 2 of the 2025 season |
 | `/?week=5&year=2024` | Same via home redirect |
 
-Default season year: current calendar year from August onward; otherwise the previous year.
+Default season year: current calendar year from June 1 onward (week 1 of the upcoming season until games start); otherwise the previous year.
 
 ## Stack
 

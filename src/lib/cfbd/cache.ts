@@ -9,6 +9,8 @@
  * across requests for the life of the Node process.
  */
 
+import { getDefaultSeasonYear } from "@/lib/time";
+
 export type CacheTier = "teams" | "calendar" | "schedule" | "scheduleHistorical";
 
 /** TTLs tuned for free-tier (1k calls/month). */
@@ -116,8 +118,7 @@ export function scheduleCacheTier(
   week: number | undefined,
   now = new Date(),
 ): CacheTier {
-  const seasonYear =
-    now.getMonth() >= 7 ? now.getFullYear() : now.getFullYear() - 1;
+  const seasonYear = getDefaultSeasonYear(now);
 
   if (year < seasonYear) return "scheduleHistorical";
   if (year > seasonYear) return "schedule";
