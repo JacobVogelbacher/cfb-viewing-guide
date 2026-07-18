@@ -159,6 +159,11 @@ export const NETWORK_LOGOS: Record<string, NetworkLogoMeta> = {
   ACCN: { src: "/networks/accn.svg" },
   SECN: { src: "/networks/secn.svg" },
   FS1: { src: "/networks/fs1.svg" },
+  CBSSN: { src: "/networks/cbssn.svg" },
+  CW: { src: "/networks/cw.svg" },
+  // Circular mark — same box boost as ABC/CBS
+  TNT: { src: "/networks/tnt.svg", boxScale: 1.2 },
+  "ESPN+": { src: "/networks/espn-plus.svg" },
 };
 
 export function getNetworkLogo(network: string): NetworkLogoMeta | null {
