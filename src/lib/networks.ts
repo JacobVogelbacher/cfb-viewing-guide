@@ -152,6 +152,13 @@ export const NETWORK_LOGOS: Record<string, NetworkLogoMeta> = {
   // Wordmark; viewBox tight-cropped vertically (was letterboxed on 24×24)
   FOX: { src: "/networks/fox.svg" },
   ESPN: { src: "/networks/espn.svg" },
+  ESPN2: { src: "/networks/espn2.svg" },
+  // Square U badge — same box boost as ABC/CBS
+  ESPNU: { src: "/networks/espnu.svg", boxScale: 1.2 },
+  BTN: { src: "/networks/btn.svg" },
+  ACCN: { src: "/networks/accn.svg" },
+  SECN: { src: "/networks/secn.svg" },
+  FS1: { src: "/networks/fs1.svg" },
 };
 
 export function getNetworkLogo(network: string): NetworkLogoMeta | null {
