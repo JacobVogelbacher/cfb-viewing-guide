@@ -76,7 +76,7 @@ export function ViewingGuideTable({ data }: { data: ViewingGuideData }) {
         <label className="inline-flex cursor-pointer select-none items-center gap-2.5 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-800 shadow-sm transition hover:bg-zinc-50">
           <input
             type="checkbox"
-            className="h-4 w-4 rounded border-zinc-300 text-emerald-700 focus:ring-emerald-600"
+            className="h-4 w-4 rounded border-zinc-300 accent-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600/40 focus:ring-offset-1"
             checked={fitToScreen}
             onChange={(e) => setFitToScreen(e.target.checked)}
           />
@@ -87,7 +87,7 @@ export function ViewingGuideTable({ data }: { data: ViewingGuideData }) {
           <label className="inline-flex cursor-pointer select-none items-center gap-2.5 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-800 shadow-sm transition hover:bg-zinc-50">
             <input
               type="checkbox"
-              className="h-4 w-4 rounded border-zinc-300 text-emerald-700 focus:ring-emerald-600"
+              className="h-4 w-4 rounded border-zinc-300 accent-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600/40 focus:ring-offset-1"
               checked={hideEspnPlus}
               onChange={(e) => setHideEspnPlus(e.target.checked)}
             />
