@@ -18,6 +18,7 @@ const NETWORK_ORDER = [
   "CW",
   "USA Network",
   "NFL Network",
+  "LHN",
   // Remaining outlets (alphabetized via compare when not listed above)
   "Peacock",
   "Prime Video",
@@ -56,6 +57,7 @@ const OUTLET_ALIASES: Record<string, string> = {
   btn: "BTN",
   "big ten network": "BTN",
   "big ten net": "BTN",
+  big10: "BTN",
   secn: "SECN",
   "sec network": "SECN",
   "sec net": "SECN",
@@ -78,6 +80,9 @@ const OUTLET_ALIASES: Record<string, string> = {
   "usa network": "USA Network",
   usa: "USA Network",
   "nfl network": "NFL Network",
+  lhn: "LHN",
+  "longhorn network": "LHN",
+  "longhorn net": "LHN",
   pac12: "PAC12",
   "pac-12 network": "PAC12",
   "pac-12 net": "PAC12",
@@ -155,6 +160,9 @@ export const NETWORK_COLORS: Record<string, string> = {
   TBD: "#000000",
   FS2: "#1B3FA0",
   "Prime Video": "#00A8E1",
+  PAC12: "#004B91",
+  "NFL Network": "#013369",
+  LHN: "#BF5700",
 };
 
 /**
@@ -188,6 +196,7 @@ export const NETWORK_LOGOS: Record<string, NetworkLogoMeta> = {
   ACCN: { src: "/networks/accn.svg" },
   SECN: { src: "/networks/secn.svg" },
   FS1: { src: "/networks/fs1.svg" },
+  FS2: { src: "/networks/fs2.svg" },
   CBSSN: { src: "/networks/cbssn.svg" },
   CW: { src: "/networks/cw.svg" },
   // Circular mark — same box boost as ABC/CBS
@@ -200,6 +209,10 @@ export const NETWORK_LOGOS: Record<string, NetworkLogoMeta> = {
   truTV: { src: "/networks/trutv.svg" },
   // Custom badge matching header CFB mark style
   TBD: { src: "/networks/tbd.svg", boxScale: 1.2 },
+  // Near-square 2026 conference mark
+  PAC12: { src: "/networks/pac12.svg", boxScale: 1.2 },
+  "NFL Network": { src: "/networks/nfl-network.svg" },
+  LHN: { src: "/networks/lhn.svg" },
 };
 
 export function getNetworkLogo(network: string): NetworkLogoMeta | null {
