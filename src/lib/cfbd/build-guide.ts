@@ -18,19 +18,55 @@ import type {
   ViewingGuideData,
 } from "./types";
 
+type TeamLogoMeta = { logo: string | null; color: string | null };
+
+/** Prefer real programs with logos over sparse/historical stubs that share names. */
+function teamLogoPriority(team: {
+  logos: string[] | null;
+  classification: string | null;
+}): number {
+  const classRank: Record<string, number> = {
+    fbs: 40,
+    fcs: 30,
+    ii: 20,
+    iii: 10,
+  };
+  const hasLogo = Boolean(team.logos?.[0]);
+  return (hasLogo ? 100 : 0) + (classRank[team.classification ?? ""] ?? 0);
+}
+
+/** ESPN CDN still returns http:// for many marks; upgrade for mixed-content safety. */
+function normalizeLogoUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  return url.replace(/^http:\/\//i, "https://");
+}
+
 function teamLogoMap(
   teams: Awaited<ReturnType<typeof getTeams>>,
-): Map<string, { logo: string | null; color: string | null }> {
-  const map = new Map<string, { logo: string | null; color: string | null }>();
+): Map<string, TeamLogoMeta> {
+  const map = new Map<string, TeamLogoMeta>();
+  const priorityByKey = new Map<string, number>();
+
+  const setKey = (raw: string, meta: TeamLogoMeta, priority: number) => {
+    const key = raw.toLowerCase();
+    const prev = priorityByKey.get(key) ?? -1;
+    // Prefer higher-quality rows; never let a no-logo stub clobber a logo.
+    if (priority < prev) return;
+    if (priority === prev && map.get(key)?.logo && !meta.logo) return;
+    map.set(key, meta);
+    priorityByKey.set(key, priority);
+  };
+
   for (const team of teams) {
-    const logo = team.logos?.[0] ?? null;
-    const color = team.color ?? null;
-    map.set(team.school.toLowerCase(), { logo, color });
-    if (team.abbreviation) {
-      map.set(team.abbreviation.toLowerCase(), { logo, color });
-    }
+    const meta: TeamLogoMeta = {
+      logo: normalizeLogoUrl(team.logos?.[0]),
+      color: team.color ?? null,
+    };
+    const priority = teamLogoPriority(team);
+    setKey(team.school, meta, priority);
+    if (team.abbreviation) setKey(team.abbreviation, meta, priority);
     for (const alt of team.alternateNames ?? []) {
-      map.set(alt.toLowerCase(), { logo, color });
+      setKey(alt, meta, priority);
     }
   }
   return map;
@@ -64,7 +100,9 @@ async function buildViewingGuideUncached(options: {
   const [games, media, teams, calendar] = await Promise.all([
     getGames({ year, week, seasonType, classification: "fbs" }),
     getGameMedia({ year, week, seasonType, classification: "fbs" }),
-    getTeams({ classification: "fbs" }),
+    // Full roster (not FBS-only): FCS opponents still need logo lookup.
+    // Name collisions are resolved in teamLogoMap by logo + classification priority.
+    getTeams(),
     getCalendar(year),
   ]);
 

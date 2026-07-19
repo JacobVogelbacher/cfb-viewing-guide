@@ -180,7 +180,10 @@ export const getGameMedia = cache(async function getGameMedia(options: {
   );
 });
 
-/** Team logos — one of the most reusable (and previously most wasteful) calls. */
+/**
+ * Team logos — one of the most reusable (and previously most wasteful) calls.
+ * Omit `classification` to load the full roster (needed so FCS opponents keep logos).
+ */
 export const getTeams = cache(async function getTeams(options?: {
   year?: number;
   classification?: DivisionClassification;
@@ -192,7 +195,7 @@ export const getTeams = cache(async function getTeams(options?: {
     "/teams",
     {
       year: options?.year,
-      classification: options?.classification ?? "fbs",
+      classification: options?.classification,
     },
     "teams",
   );
