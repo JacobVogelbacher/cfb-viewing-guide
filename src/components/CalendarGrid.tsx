@@ -153,18 +153,23 @@ export function CalendarGrid({
         const stickyBg = groupIndex % 2 === 0 ? "#ffffff" : "#fafafa";
         const rowBg = groupIndex % 2 === 0 ? "bg-white" : "bg-zinc-50";
         const showNetworkLabel = lane.isFirstLane;
+        // Multi-lane networks: no bottom border on the sticky network column
+        // until the last lane, so stacked rows read as one network cell.
+        const isLastLaneOfNetwork = lane.laneIndex === lane.laneCount - 1;
 
         return (
           <div
             key={`${lane.network}-lane-${lane.laneIndex}`}
-            className={`flex border-b border-zinc-200 ${rowBg}`}
+            className={`flex ${rowBg}`}
             style={{
               width: fitWidth ? "100%" : tableWidth,
               height: rowHeight,
             }}
           >
             <div
-              className="sticky left-0 z-10 flex shrink-0 items-center justify-center border-r border-zinc-200 px-1"
+              className={`sticky left-0 z-10 flex shrink-0 items-center justify-center border-r border-zinc-200 px-1 ${
+                isLastLaneOfNetwork ? "border-b border-zinc-200" : ""
+              }`}
               style={{
                 width: networkCol,
                 minWidth: networkCol,
@@ -190,7 +195,7 @@ export function CalendarGrid({
             </div>
 
             <div
-              className="relative min-w-0 flex-1"
+              className="relative min-w-0 flex-1 border-b border-zinc-200"
               style={{
                 width: fitWidth ? undefined : timelineWidth,
                 height: rowHeight,
