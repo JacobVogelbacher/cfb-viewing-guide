@@ -48,7 +48,8 @@ export function WeekNav({
         )}
       </div>
 
-      <div className="flex flex-wrap items-center gap-1.5">
+      {/* Week pills — sm and up */}
+      <div className="hidden flex-wrap items-center gap-1.5 sm:flex">
         {weeks.map((w) => {
           const active = w === week;
           return (
@@ -68,26 +69,53 @@ export function WeekNav({
         })}
       </div>
 
-      <form action="/week" method="get" className="flex items-center gap-2">
-        <label htmlFor="year" className="text-xs font-medium text-zinc-500">
-          Season
-        </label>
-        {/* Always land on week 1 when changing seasons */}
-        <input type="hidden" name="week" value={1} />
-        <select
-          id="year"
-          name="year"
-          defaultValue={year}
-          onChange={(e) => e.currentTarget.form?.requestSubmit()}
-          className="rounded-md border border-zinc-200 bg-white px-2 py-1 text-sm tabular-nums shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+      <div className="flex flex-wrap items-center gap-3 sm:contents">
+        {/* Week dropdown — mobile only (same pattern as season select) */}
+        <form
+          action="/week"
+          method="get"
+          className="flex items-center gap-2 sm:hidden"
         >
-          {seasonYears.map((y) => (
-            <option key={y} value={y}>
-              {y}
-            </option>
-          ))}
-        </select>
-      </form>
+          <label htmlFor="week" className="text-xs font-medium text-zinc-500">
+            Week
+          </label>
+          <input type="hidden" name="year" value={year} />
+          <select
+            id="week"
+            name="week"
+            defaultValue={week}
+            onChange={(e) => e.currentTarget.form?.requestSubmit()}
+            className="rounded-md border border-zinc-200 bg-white px-2 py-1 text-sm tabular-nums shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+          >
+            {weeks.map((w) => (
+              <option key={w} value={w}>
+                {w}
+              </option>
+            ))}
+          </select>
+        </form>
+
+        <form action="/week" method="get" className="flex items-center gap-2">
+          <label htmlFor="year" className="text-xs font-medium text-zinc-500">
+            Season
+          </label>
+          {/* Always land on week 1 when changing seasons */}
+          <input type="hidden" name="week" value={1} />
+          <select
+            id="year"
+            name="year"
+            defaultValue={year}
+            onChange={(e) => e.currentTarget.form?.requestSubmit()}
+            className="rounded-md border border-zinc-200 bg-white px-2 py-1 text-sm tabular-nums shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+          >
+            {seasonYears.map((y) => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
+          </select>
+        </form>
+      </div>
     </nav>
   );
 }
