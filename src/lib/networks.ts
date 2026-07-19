@@ -11,20 +11,25 @@ const NETWORK_ORDER = [
   "SECN",
   "ACCN",
   "FS1",
+  "FS2",
   "CBSSN",
-  "CW",
   "TNT",
   "truTV",
-  "Peacock",
-  "ESPN+",
-  "MW+",
-  // Remaining outlets (alphabetized via compare when not listed above)
-  "FS2",
-  "Prime Video",
+  "CW",
   "USA Network",
   "NFL Network",
+  // Remaining outlets (alphabetized via compare when not listed above)
+  "Peacock",
+  "Prime Video",
   "PAC12",
+  // Always last three (see compareNetworks) — kept here for completeness
+  "MW+",
+  "ESPN+",
+  "TBD",
 ] as const;
+
+/** Networks pinned to the bottom of the guide (lowest priority last). */
+const NETWORK_ORDER_TAIL = ["MW+", "ESPN+", "TBD"] as const;
 
 /** Normalize raw CFBD outlet names to a canonical key + display name. */
 const OUTLET_ALIASES: Record<string, string> = {
@@ -43,7 +48,7 @@ const OUTLET_ALIASES: Record<string, string> = {
   "big ten plus": "ESPN+",
   "btn+": "ESPN+",
   "acc extra": "ESPN+",
-  "accnx": "ESPN+",
+  accnx: "ESPN+",
   "acc network extra": "ESPN+",
   cbssn: "CBSSN",
   "cbs sports network": "CBSSN",
@@ -68,7 +73,7 @@ const OUTLET_ALIASES: Record<string, string> = {
   cw: "CW",
   "the cw": "CW",
   tnt: "TNT",
-  "trutv": "truTV",
+  trutv: "truTV",
   "tru tv": "truTV",
   "usa network": "USA Network",
   usa: "USA Network",
@@ -99,18 +104,32 @@ export function normalizeOutlet(outlet: string | null | undefined): string {
   return raw;
 }
 
-export function networkSortIndex(network: string): number {
-  const idx = NETWORK_ORDER.indexOf(network as (typeof NETWORK_ORDER)[number]);
-  return idx === -1 ? NETWORK_ORDER.length + network.localeCompare("a") : idx;
+function tailRank(network: string): number {
+  // 0 = not in tail; higher = lower priority (TBD last)
+  const i = NETWORK_ORDER_TAIL.indexOf(
+    network as (typeof NETWORK_ORDER_TAIL)[number],
+  );
+  return i === -1 ? 0 : i + 1;
 }
 
+export function networkSortIndex(network: string): number {
+  const tail = tailRank(network);
+  if (tail > 0) {
+    // After every non-tail network (listed or not)
+    return 10_000 + tail;
+  }
+  const idx = NETWORK_ORDER.indexOf(network as (typeof NETWORK_ORDER)[number]);
+  // Unlisted (non-tail) sit after the main list, before ESPN+ / TBD
+  if (idx === -1) return 1_000 + network.localeCompare("a");
+  return idx;
+}
+
+/**
+ * Sort networks for the guide.
+ * Order: preferred list → other named outlets (A–Z) → MW+ → ESPN+ → TBD (always last).
+ */
 export function compareNetworks(a: string, b: string): number {
-  const ai = NETWORK_ORDER.indexOf(a as (typeof NETWORK_ORDER)[number]);
-  const bi = NETWORK_ORDER.indexOf(b as (typeof NETWORK_ORDER)[number]);
-  if (ai === -1 && bi === -1) return a.localeCompare(b);
-  if (ai === -1) return 1;
-  if (bi === -1) return -1;
-  return ai - bi;
+  return networkSortIndex(a) - networkSortIndex(b) || a.localeCompare(b);
 }
 
 /** Brand colors for network row accents. */
@@ -133,6 +152,7 @@ export const NETWORK_COLORS: Record<string, string> = {
   Peacock: "#000000",
   "ESPN+": "#D00027",
   "MW+": "#4F2D7F",
+  TBD: "#000000",
   FS2: "#1B3FA0",
   "Prime Video": "#00A8E1",
 };
@@ -178,6 +198,8 @@ export const NETWORK_LOGOS: Record<string, NetworkLogoMeta> = {
   // Near-square conference mark
   "MW+": { src: "/networks/mw.svg", boxScale: 1.2 },
   truTV: { src: "/networks/trutv.svg" },
+  // Custom badge matching header CFB mark style
+  TBD: { src: "/networks/tbd.svg", boxScale: 1.2 },
 };
 
 export function getNetworkLogo(network: string): NetworkLogoMeta | null {
