@@ -139,8 +139,20 @@ export function CalendarGrid({
           style={{ width: fitWidth ? undefined : timelineWidth }}
         >
           {data.hourColumns.map((col) => {
+            // Compact "12pm" for tight headers: mobile screenshot, or Fit to
+            // Screen on mobile (sm+ keeps "Noon").
+            const isNoon = col.hour24 === 12;
             const label =
-              mobileScreenshot && col.hour24 === 12 ? "12pm" : col.label;
+              isNoon && mobileScreenshot ? (
+                "12pm"
+              ) : isNoon && fitWidth ? (
+                <>
+                  <span className="sm:hidden">12pm</span>
+                  <span className="hidden sm:inline">{col.label}</span>
+                </>
+              ) : (
+                col.label
+              );
             return (
               <div
                 key={col.index}
