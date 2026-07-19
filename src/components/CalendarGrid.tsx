@@ -120,16 +120,16 @@ export function CalendarGrid({
         backgroundColor: "#ffffff",
       }}
     >
-      {/* Header */}
+      {/* Header — same off-white as even body rows (bg-zinc-50 / #fafafa) */}
       <div
-        className="flex border-b border-zinc-300 bg-zinc-900 text-white"
+        className="flex border-b border-zinc-300 bg-zinc-50 text-zinc-800"
         style={{
           width: fitWidth ? "100%" : tableWidth,
           height: effectiveHeaderHeight,
         }}
       >
         <div
-          className="sticky left-0 z-20 flex shrink-0 items-center justify-center border-r border-zinc-700 bg-zinc-900 px-1"
+          className="sticky left-0 z-20 flex shrink-0 items-center justify-center border-r border-zinc-200 bg-zinc-50 px-1"
           style={{ width: networkCol, minWidth: networkCol }}
         >
           <span className="sr-only">Network</span>
@@ -144,7 +144,7 @@ export function CalendarGrid({
             return (
               <div
                 key={col.index}
-                className="flex shrink-0 items-center justify-center border-r border-zinc-700 px-0.5 text-center font-bold uppercase tracking-wide text-zinc-100 last:border-r-0"
+                className="flex shrink-0 items-center justify-center border-r border-zinc-200 px-0.5 text-center font-bold uppercase tracking-wide text-zinc-700 last:border-r-0"
                 style={{
                   width: fitWidth
                     ? `${100 / data.hourColumns.length}%`
