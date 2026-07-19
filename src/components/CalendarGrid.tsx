@@ -66,6 +66,11 @@ export function CalendarGrid({
   layout,
   fitWidth,
   className,
+  /**
+   * Mobile screenshot tweaks: "12pm" instead of "Noon", and extra vertical
+   * padding on time-slot header cells (scaled headers get too tight).
+   */
+  mobileScreenshot = false,
 }: {
   data: ViewingGuideData;
   lanes: NetworkLane[];
@@ -73,6 +78,7 @@ export function CalendarGrid({
   /** When true, table stretches to 100% width with equal % hour columns. */
   fitWidth?: boolean;
   className?: string;
+  mobileScreenshot?: boolean;
 }) {
   const timelineMinutes = data.timelineMinutes;
   const {
@@ -98,6 +104,12 @@ export function CalendarGrid({
   const networkBadgeMinW = Math.max(24, Math.round(72 * scale));
   const cellPadY = Math.max(1, Math.round(6 * scale));
   const barPadX = Math.max(0.5, Math.round(2 * scale));
+  // Extra top/bottom padding on time headers (absolute-ish floor so tiny
+  // scales still breathe).
+  const headerPadY = mobileScreenshot
+    ? Math.max(5, Math.round(8 * scale) + 3)
+    : 0;
+  const effectiveHeaderHeight = headerHeight + headerPadY * 2;
 
   return (
     <div
@@ -113,7 +125,7 @@ export function CalendarGrid({
         className="flex border-b border-zinc-300 bg-zinc-900 text-white"
         style={{
           width: fitWidth ? "100%" : tableWidth,
-          height: headerHeight,
+          height: effectiveHeaderHeight,
         }}
       >
         <div
@@ -126,23 +138,29 @@ export function CalendarGrid({
           className="flex min-w-0 flex-1"
           style={{ width: fitWidth ? undefined : timelineWidth }}
         >
-          {data.hourColumns.map((col) => (
-            <div
-              key={col.index}
-              className="flex shrink-0 items-center justify-center border-r border-zinc-700 px-0.5 text-center font-bold uppercase tracking-wide text-zinc-100 last:border-r-0"
-              style={{
-                width: fitWidth
-                  ? `${100 / data.hourColumns.length}%`
-                  : timeCol,
-                flexBasis: fitWidth
-                  ? `${100 / data.hourColumns.length}%`
-                  : timeCol,
-                fontSize: headerFontPx,
-              }}
-            >
-              <span className="block truncate">{col.label}</span>
-            </div>
-          ))}
+          {data.hourColumns.map((col) => {
+            const label =
+              mobileScreenshot && col.hour24 === 12 ? "12pm" : col.label;
+            return (
+              <div
+                key={col.index}
+                className="flex shrink-0 items-center justify-center border-r border-zinc-700 px-0.5 text-center font-bold uppercase tracking-wide text-zinc-100 last:border-r-0"
+                style={{
+                  width: fitWidth
+                    ? `${100 / data.hourColumns.length}%`
+                    : timeCol,
+                  flexBasis: fitWidth
+                    ? `${100 / data.hourColumns.length}%`
+                    : timeCol,
+                  fontSize: headerFontPx,
+                  paddingTop: headerPadY,
+                  paddingBottom: headerPadY,
+                }}
+              >
+                <span className="block truncate">{label}</span>
+              </div>
+            );
+          })}
         </div>
       </div>
 

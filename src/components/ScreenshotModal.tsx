@@ -17,6 +17,8 @@ export function ScreenshotModal({
 }) {
   const stageRef = useRef<HTMLDivElement>(null);
   const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
+  /** Narrow viewports: compact noon label + roomier time-header padding. */
+  const [mobileScreenshot, setMobileScreenshot] = useState(false);
 
   const lanes = useMemo(
     () => expandNetworkLanes(data.networks),
@@ -34,9 +36,15 @@ export function ScreenshotModal({
     };
     window.addEventListener("keydown", onKey);
 
+    const mq = window.matchMedia("(max-width: 639px)");
+    const syncMobile = () => setMobileScreenshot(mq.matches);
+    syncMobile();
+    mq.addEventListener("change", syncMobile);
+
     return () => {
       document.body.style.overflow = prevOverflow;
       window.removeEventListener("keydown", onKey);
+      mq.removeEventListener("change", syncMobile);
     };
   }, [open, onClose]);
 
@@ -104,6 +112,7 @@ export function ScreenshotModal({
             data={data}
             lanes={lanes}
             layout={layout}
+            mobileScreenshot={mobileScreenshot}
             className="viewing-guide-table shadow-sm"
           />
         ) : null}
