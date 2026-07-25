@@ -1,7 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { getAllowedSeasonYears } from "@/lib/time";
+import { cn } from "@/lib/utils";
+
+const arrowBtnClass =
+  "inline-flex size-7.5 shrink-0 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-700 shadow-sm transition hover:bg-zinc-50";
+const arrowBtnDisabledClass =
+  "inline-flex size-7.5 shrink-0 items-center justify-center rounded-lg border border-transparent text-zinc-300";
 
 export function WeekNav({
   year,
@@ -21,7 +28,7 @@ export function WeekNav({
       className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
       aria-label="Week navigation"
     >
-      {/* Prev / next — tablet & desktop only */}
+      {/* Prev / next with labels — tablet & desktop only */}
       <div className="hidden items-center gap-2 sm:flex">
         {prev != null ? (
           <Link
@@ -70,52 +77,92 @@ export function WeekNav({
         })}
       </div>
 
-      {/* Week + season dropdowns — only controls shown on mobile */}
-      <div className="flex flex-wrap items-center gap-3 lg:contents">
-        <form
-          action="/week"
-          method="get"
-          className="flex items-center gap-2 lg:hidden"
-        >
-          <label htmlFor="week" className="text-xs font-medium text-zinc-500">
-            Week
-          </label>
-          <input type="hidden" name="year" value={year} />
-          <select
-            id="week"
-            name="week"
-            defaultValue={week}
-            onChange={(e) => e.currentTarget.form?.requestSubmit()}
-            className="rounded-md border border-zinc-200 bg-white px-2 py-1 text-sm tabular-nums shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+      {/*
+        Mobile: [←] Week · Season [→]
+        sm–lg: Week · Season only (labeled prev/next above)
+        lg+: season only (week pills handle week jumps)
+      */}
+      <div
+        className={cn(
+          "flex items-center gap-2 sm:gap-3",
+          "max-sm:w-full max-sm:justify-between",
+          "lg:contents",
+        )}
+      >
+        {prev != null ? (
+          <Link
+            href={`/week/${prev}?year=${year}`}
+            className={cn(arrowBtnClass, "sm:hidden")}
+            aria-label={`Previous week, Week ${prev}`}
           >
-            {weeks.map((w) => (
-              <option key={w} value={w}>
-                {w}
-              </option>
-            ))}
-          </select>
-        </form>
+            <ChevronLeft className="size-5" aria-hidden />
+          </Link>
+        ) : (
+          <span className={cn(arrowBtnDisabledClass, "sm:hidden")} aria-hidden>
+            <ChevronLeft className="size-5" />
+          </span>
+        )}
 
-        <form action="/week" method="get" className="flex items-center gap-2">
-          <label htmlFor="year" className="text-xs font-medium text-zinc-500">
-            Season
-          </label>
-          {/* Always land on week 1 when changing seasons */}
-          <input type="hidden" name="week" value={1} />
-          <select
-            id="year"
-            name="year"
-            defaultValue={year}
-            onChange={(e) => e.currentTarget.form?.requestSubmit()}
-            className="rounded-md border border-zinc-200 bg-white px-2 py-1 text-sm tabular-nums shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+        <div className="flex min-w-0 flex-1 flex-wrap items-center justify-center gap-3 sm:flex-initial sm:justify-start lg:contents">
+          <form
+            action="/week"
+            method="get"
+            className="flex items-center gap-2 lg:hidden"
           >
-            {seasonYears.map((y) => (
-              <option key={y} value={y}>
-                {y}
-              </option>
-            ))}
-          </select>
-        </form>
+            <label htmlFor="week" className="text-xs font-medium text-zinc-500">
+              Week
+            </label>
+            <input type="hidden" name="year" value={year} />
+            <select
+              id="week"
+              name="week"
+              defaultValue={week}
+              onChange={(e) => e.currentTarget.form?.requestSubmit()}
+              className="rounded-md border border-zinc-200 bg-white px-2 py-1 text-sm tabular-nums shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+            >
+              {weeks.map((w) => (
+                <option key={w} value={w}>
+                  {w}
+                </option>
+              ))}
+            </select>
+          </form>
+
+          <form action="/week" method="get" className="flex items-center gap-2">
+            <label htmlFor="year" className="text-xs font-medium text-zinc-500">
+              Season
+            </label>
+            {/* Always land on week 1 when changing seasons */}
+            <input type="hidden" name="week" value={1} />
+            <select
+              id="year"
+              name="year"
+              defaultValue={year}
+              onChange={(e) => e.currentTarget.form?.requestSubmit()}
+              className="rounded-md border border-zinc-200 bg-white px-2 py-1 text-sm tabular-nums shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+            >
+              {seasonYears.map((y) => (
+                <option key={y} value={y}>
+                  {y}
+                </option>
+              ))}
+            </select>
+          </form>
+        </div>
+
+        {next != null ? (
+          <Link
+            href={`/week/${next}?year=${year}`}
+            className={cn(arrowBtnClass, "sm:hidden")}
+            aria-label={`Next week, Week ${next}`}
+          >
+            <ChevronRight className="size-5" aria-hidden />
+          </Link>
+        ) : (
+          <span className={cn(arrowBtnDisabledClass, "sm:hidden")} aria-hidden>
+            <ChevronRight className="size-5" />
+          </span>
+        )}
       </div>
     </nav>
   );
