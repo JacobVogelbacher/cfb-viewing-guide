@@ -69,13 +69,11 @@ export function WeekGuideView({
           id={navPanelId}
           className={cn(
             "shrink-0 px-4 sm:px-6 lg:px-8",
-            // When open on mobile, cap height so the calendar still gets space.
-            mobileNavOpen
-              ? "block max-h-[45svh] overflow-y-auto pt-5 max-sm:pb-4 sm:max-h-none sm:overflow-visible sm:pt-0 sm:pb-0"
-              : "hidden sm:block",
+            mobileNavOpen ? "block pb-3 sm:py-0" : "hidden sm:block",
           )}
         >
-          <header className="mb-8">
+          {/* Title / date — tablet & desktop only */}
+          <header className="mb-8 hidden sm:block">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
                 <h1 className="text-3xl font-black tracking-tight text-zinc-900 sm:text-4xl">
@@ -95,7 +93,7 @@ export function WeekGuideView({
             </div>
           </header>
 
-          <div className="mb-6">
+          <div className="sm:mb-6">
             <WeekNav year={year} week={week} weeks={weeks} />
           </div>
         </div>

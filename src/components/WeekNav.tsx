@@ -21,7 +21,8 @@ export function WeekNav({
       className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
       aria-label="Week navigation"
     >
-      <div className="flex items-center gap-2">
+      {/* Prev / next — tablet & desktop only */}
+      <div className="hidden items-center gap-2 sm:flex">
         {prev != null ? (
           <Link
             href={`/week/${prev}?year=${year}`}
@@ -48,7 +49,7 @@ export function WeekNav({
         )}
       </div>
 
-      {/* Week pills — desktop */}
+      {/* Week pills — large desktop */}
       <div className="hidden flex-wrap items-center gap-1.5 lg:flex">
         {weeks.map((w) => {
           const active = w === week;
@@ -69,8 +70,8 @@ export function WeekNav({
         })}
       </div>
 
+      {/* Week + season dropdowns — only controls shown on mobile */}
       <div className="flex flex-wrap items-center gap-3 lg:contents">
-        {/* Week dropdown — mobile only (same pattern as season select) */}
         <form
           action="/week"
           method="get"
