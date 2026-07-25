@@ -11,8 +11,9 @@ export function PageWrapper({
   headerActions?: ReactNode;
 }) {
   return (
-    <>
-      <div className="sticky top-0 left-0 z-30 flex w-full max-w-[1600px] items-center justify-between gap-3 bg-zinc-100 px-4 py-3 sm:px-6 md:static lg:px-8">
+    <div className="flex min-h-0 flex-1 flex-col max-sm:h-full sm:min-h-full">
+      {/* App chrome: fixed-height on mobile (body is 100svh); not a page-scroll sticky bar. */}
+      <div className="z-40 flex w-full shrink-0 items-center justify-between gap-3 bg-zinc-100 px-4 py-3 sm:max-w-[1600px] sm:px-6 lg:px-8">
         <Link href="/" title="Home">
           <Logo />
         </Link>
@@ -23,7 +24,7 @@ export function PageWrapper({
         ) : null}
       </div>
 
-      <main className="flex-1">{children}</main>
-    </>
+      <main className="flex min-h-0 flex-1 flex-col">{children}</main>
+    </div>
   );
 }

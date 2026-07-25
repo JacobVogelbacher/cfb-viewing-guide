@@ -64,12 +64,15 @@ export function WeekGuideView({
         </>
       }
     >
-      <div className="mx-auto w-full max-w-[1600px] sm:pt-5 sm:pb-8">
+      <div className="mx-auto flex w-full max-w-[1600px] min-h-0 flex-1 flex-col max-sm:overflow-hidden sm:pt-5 sm:pb-8">
         <div
           id={navPanelId}
           className={cn(
-            "px-4 sm:px-6 lg:px-8",
-            mobileNavOpen ? "block pt-5" : "hidden sm:block",
+            "shrink-0 px-4 sm:px-6 lg:px-8",
+            // When open on mobile, cap height so the calendar still gets space.
+            mobileNavOpen
+              ? "block max-h-[45svh] overflow-y-auto pt-5 max-sm:pb-4 sm:max-h-none sm:overflow-visible sm:pt-0 sm:pb-0"
+              : "hidden sm:block",
           )}
         >
           <header className="mb-8">
@@ -103,7 +106,7 @@ export function WeekGuideView({
           onScreenshotOpenChange={setScreenshotOpen}
         />
 
-        <footer className="hidden mt-8 px-4 text-center text-xs text-zinc-400 sm:block sm:mt-10 sm:border-t sm:border-zinc-200 sm:px-6 sm:pt-6 lg:px-8">
+        <footer className="mt-8 hidden px-4 text-center text-xs text-zinc-400 sm:mt-10 sm:block sm:border-t sm:border-zinc-200 sm:px-6 sm:pt-6 lg:px-8">
           Data from{" "}
           <a
             href="https://collegefootballdata.com"

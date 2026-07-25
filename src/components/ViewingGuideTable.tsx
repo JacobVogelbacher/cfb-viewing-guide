@@ -217,9 +217,9 @@ export function ViewingGuideTable({
   }
 
   return (
-    <div className="space-y-3 sm:px-6 lg:px-8">
+    <div className="flex min-h-0 flex-1 flex-col space-y-3 max-sm:overflow-hidden sm:px-6 lg:px-8">
       {/* sm+ only — mobile uses header screenshot + calendar filter controls */}
-      <div className="hidden flex-wrap items-center gap-2 sm:flex sm:gap-3">
+      <div className="hidden shrink-0 flex-wrap items-center gap-2 sm:flex sm:gap-3">
         <label className="inline-flex cursor-pointer select-none items-center gap-2.5 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-800 shadow-sm transition hover:bg-zinc-50">
           <input
             type="checkbox"
@@ -293,9 +293,12 @@ export function ViewingGuideTable({
         <div
           ref={containerRef}
           className={cn(
+            "min-h-0 border border-zinc-200 bg-white shadow-sm max-sm:flex-1 max-sm:overflow-auto sm:rounded-xl",
+            // Mobile: one scrollport (x + y) so hour header can stick inside it.
+            // Desktop/tablet: horizontal scroll only; page scrolls vertically.
             applyFitToScreen
-              ? "overflow-x-hidden sm:rounded-xl border border-zinc-200 bg-white shadow-sm"
-              : "overflow-x-auto sm:rounded-xl border border-zinc-200 bg-white shadow-sm",
+              ? "sm:overflow-x-hidden sm:overflow-y-visible"
+              : "sm:overflow-x-auto sm:overflow-y-visible",
           )}
         >
           <CalendarGrid
