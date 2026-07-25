@@ -48,7 +48,9 @@ export function WeekGuideView({
               mobileNavOpen &&
                 "border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-50",
             )}
-            aria-label={mobileNavOpen ? "Hide week navigation" : "Show week navigation"}
+            aria-label={
+              mobileNavOpen ? "Hide week navigation" : "Show week navigation"
+            }
             aria-expanded={mobileNavOpen}
             aria-controls={navPanelId}
             onClick={() => setMobileNavOpen((open) => !open)}
@@ -62,7 +64,7 @@ export function WeekGuideView({
         </>
       }
     >
-      <div className="mx-auto w-full max-w-[1600px] pb-8 sm:pt-5">
+      <div className="mx-auto w-full max-w-[1600px] sm:pt-5 sm:pb-8">
         <div
           id={navPanelId}
           className={cn(
@@ -101,7 +103,7 @@ export function WeekGuideView({
           onScreenshotOpenChange={setScreenshotOpen}
         />
 
-        <footer className="mt-8 px-4 text-center text-xs text-zinc-400 sm:mt-10 sm:border-t sm:border-zinc-200 sm:px-6 sm:pt-6 lg:px-8">
+        <footer className="hidden mt-8 px-4 text-center text-xs text-zinc-400 sm:block sm:mt-10 sm:border-t sm:border-zinc-200 sm:px-6 sm:pt-6 lg:px-8">
           Data from{" "}
           <a
             href="https://collegefootballdata.com"

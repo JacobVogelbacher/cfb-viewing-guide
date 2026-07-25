@@ -156,7 +156,7 @@ export function CalendarGrid({
     >
       {/* Header — same off-white as even body rows (bg-zinc-50 / #fafafa) */}
       <div
-        className="flex border-b border-zinc-300 bg-zinc-50 text-zinc-800"
+        className="sticky top-0 left-0 z-30 flex border-b border-zinc-300 bg-zinc-50 text-zinc-800"
         style={{
           width: fitWidth ? "100%" : tableWidth,
         }}
