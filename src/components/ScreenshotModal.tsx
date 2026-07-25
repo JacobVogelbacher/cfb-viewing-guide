@@ -36,14 +36,6 @@ export function ScreenshotModal({
     [data.hourColumns.length, stageWidth],
   );
 
-  const titleLine = useMemo(
-    () =>
-      [`Week ${data.week}`, String(data.year), data.saturdayLabel || null]
-        .filter(Boolean)
-        .join(" · "),
-    [data.week, data.year, data.saturdayLabel],
-  );
-
   useEffect(() => {
     if (!open) return;
 
@@ -86,7 +78,7 @@ export function ScreenshotModal({
       {/* Compact chrome — stay out of the white capture surface */}
       <div className="flex shrink-0 items-center justify-between gap-3 border-b border-zinc-800 bg-zinc-900 px-3 py-2 text-white">
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold">{titleLine}</p>
+          <p className="truncate text-sm font-semibold">{data.saturdayLabel}</p>
           <p className="text-[11px] text-zinc-400">
             Take a full-page screenshot
           </p>
@@ -110,8 +102,12 @@ export function ScreenshotModal({
       >
         {stageWidth > 0 ? (
           <div className="bg-white text-zinc-900" style={{ width: stageWidth }}>
-            <header className="border-b border-zinc-200 px-3 py-2.5 sm:px-4 sm:py-3">
+            <header className="flex justify-between items-center border-b border-zinc-200 px-3 py-2.5 sm:px-4 sm:py-3">
               <Logo />
+
+              <p className="truncate text-sm font-semibold">
+                Week {data.week} &bull; {data.year}
+              </p>
             </header>
 
             {data.networks.length > 0 && data.hourColumns.length > 0 ? (
