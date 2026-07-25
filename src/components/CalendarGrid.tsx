@@ -5,6 +5,21 @@ import type { CalendarLayout } from "./calendar-layout";
 import { MatchupCard } from "./MatchupCard";
 import { cn } from "@/lib/utils";
 
+/** Network logo box density for the sticky column (main table only). */
+export type NetworkLogoDensity = "default" | "tablet" | "mobile";
+
+const NETWORK_LOGO_BOX: Record<
+  NetworkLogoDensity,
+  { baseH: number; baseW: number; minH: number; minW: number }
+> = {
+  // Full desktop marks
+  default: { baseH: 30, baseW: 80, minH: 16, minW: 40 },
+  // Between mobile and desktop
+  tablet: { baseH: 24, baseW: 64, minH: 14, minW: 36 },
+  // Narrow phones — ~60% of desktop
+  mobile: { baseH: 18, baseW: 48, minH: 12, minW: 28 },
+};
+
 function NetworkLabel({
   network,
   displayName,
@@ -14,6 +29,7 @@ function NetworkLabel({
   networkBadgeMinH,
   networkBadgeMinW,
   cellPadY,
+  logoDensity = "default",
 }: {
   network: string;
   displayName: string;
@@ -23,12 +39,14 @@ function NetworkLabel({
   networkBadgeMinH: number;
   networkBadgeMinW: number;
   cellPadY: number;
+  logoDensity?: NetworkLogoDensity;
 }) {
   const logo = getNetworkLogo(network);
   if (logo) {
     const boxScale = logo.boxScale ?? 1;
-    const logoH = Math.max(16, Math.round(30 * scale * boxScale));
-    const logoW = Math.max(40, Math.round(80 * scale * boxScale));
+    const { baseH, baseW, minH, minW } = NETWORK_LOGO_BOX[logoDensity];
+    const logoH = Math.max(minH, Math.round(baseH * scale * boxScale));
+    const logoW = Math.max(minW, Math.round(baseW * scale * boxScale));
     return (
       // eslint-disable-next-line @next/next/no-img-element -- local static SVG from /public
       <img
@@ -77,6 +95,8 @@ export function CalendarGrid({
    * position:sticky). Use for fixed-width PNG export.
    */
   disableSticky = false,
+  /** Mobile/tablet: smaller network logos in the sticky column. */
+  networkLogoDensity = "default",
 }: {
   data: ViewingGuideData;
   lanes: NetworkLane[];
@@ -86,6 +106,7 @@ export function CalendarGrid({
   className?: string;
   screenshotLayout?: boolean;
   disableSticky?: boolean;
+  networkLogoDensity?: NetworkLogoDensity;
 }) {
   const networkColPosition = disableSticky ? "relative" : "sticky";
   const timelineMinutes = data.timelineMinutes;
@@ -224,6 +245,7 @@ export function CalendarGrid({
                   networkBadgeMinH={networkBadgeMinH}
                   networkBadgeMinW={networkBadgeMinW}
                   cellPadY={cellPadY}
+                  logoDensity={networkLogoDensity}
                 />
               ) : (
                 <span className="sr-only">

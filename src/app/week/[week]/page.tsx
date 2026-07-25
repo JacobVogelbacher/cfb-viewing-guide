@@ -162,9 +162,7 @@ export default async function WeekPage({ params, searchParams }: PageProps) {
         </div>
       </div>
 
-      <div className="sm:px-6 lg:px-8">
-        <ViewingGuideTable data={data} />
-      </div>
+      <ViewingGuideTable data={data} />
 
       <footer className="mt-10 border-t border-zinc-200 pt-6 px-4 sm:px-6 lg:px-8 text-center text-xs text-zinc-400">
         Data from{" "}
