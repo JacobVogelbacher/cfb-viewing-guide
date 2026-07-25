@@ -172,11 +172,11 @@ export default async function WeekPage({ params, searchParams }: PageProps) {
 
         <ViewingGuideTable data={data} />
 
-        <footer className="mt-10 border-t border-zinc-200 pt-6 px-4 sm:px-6 lg:px-8 text-center text-xs text-zinc-400">
+        <footer className="mt-8 px-4 sm:mt-10 sm:border-t sm:border-zinc-200 sm:pt-6 sm:px-6 lg:px-8 text-center text-xs text-zinc-400">
           Data from{" "}
           <a
             href="https://collegefootballdata.com"
-            className="underline underline-offset-2 hover:text-zinc-600"
+            className="underline underline-offset-2 transition-colors cursor-pointer hover:text-zinc-600"
             target="_blank"
             rel="noreferrer"
           >
