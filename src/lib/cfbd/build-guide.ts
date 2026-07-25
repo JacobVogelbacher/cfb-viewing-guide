@@ -276,7 +276,7 @@ export async function buildViewingGuide(options: {
   return unstable_cache(
     () => buildViewingGuideUncached({ year, week, seasonType }),
     [
-      "viewing-guide-v4-primary-saturday",
+      "viewing-guide-v5-secn-plus-espn-plus",
       String(year),
       String(week),
       seasonType,
