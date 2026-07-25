@@ -259,7 +259,9 @@ export function CalendarGrid({
             </div>
 
             <div
-              className="relative min-w-0 flex-1 border-b border-zinc-200"
+              className={`relative min-w-0 flex-1 ${
+                isLastLaneOfNetwork ? "border-b border-zinc-200" : ""
+              }`}
               style={{
                 width: fitWidth ? undefined : timelineWidth,
                 height: rowHeight,
