@@ -9,6 +9,8 @@ import { ScreenshotModal } from "./ScreenshotModal";
 
 const PREF_FIT_TO_SCREEN = "cfb-guide:fitToScreen";
 const PREF_HIDE_ESPN_PLUS = "cfb-guide:hideEspnPlus";
+/** Tailwind `sm` (640px): Fit to Screen is desktop-only below this width. */
+const MOBILE_MAX_WIDTH_MQ = "(max-width: 639px)";
 
 function readSessionBool(key: string): boolean | null {
   try {
@@ -37,6 +39,8 @@ export function ViewingGuideTable({ data }: { data: ViewingGuideData }) {
   const [fitToScreen, setFitToScreen] = useState(false);
   const [hideEspnPlus, setHideEspnPlus] = useState(false);
   const [prefsHydrated, setPrefsHydrated] = useState(false);
+  /** True below Tailwind `sm`; Fit to Screen is ignored while true. */
+  const [isMobile, setIsMobile] = useState(false);
   const [screenshotOpen, setScreenshotOpen] = useState(false);
   const [containerWidth, setContainerWidth] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -58,6 +62,14 @@ export function ViewingGuideTable({ data }: { data: ViewingGuideData }) {
   }, [fitToScreen, hideEspnPlus, prefsHydrated]);
 
   useEffect(() => {
+    const mq = window.matchMedia(MOBILE_MAX_WIDTH_MQ);
+    const sync = () => setIsMobile(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
 
@@ -68,6 +80,9 @@ export function ViewingGuideTable({ data }: { data: ViewingGuideData }) {
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
+
+  /** Preference may be on in sessionStorage; never scale-to-width on mobile. */
+  const applyFitToScreen = fitToScreen && !isMobile;
 
   const hasEspnPlus = useMemo(
     () => data.networks.some((n) => n.network === "ESPN+"),
@@ -88,14 +103,14 @@ export function ViewingGuideTable({ data }: { data: ViewingGuideData }) {
   );
 
   const layout = useMemo(() => {
-    if (fitToScreen) {
+    if (applyFitToScreen) {
       return computeLayoutFitWidth(
         visibleData.hourColumns.length,
         containerWidth,
       );
     }
     return naturalLayout(visibleData.hourColumns.length);
-  }, [visibleData.hourColumns.length, fitToScreen, containerWidth]);
+  }, [visibleData.hourColumns.length, applyFitToScreen, containerWidth]);
 
   if (data.networks.length === 0 || data.hourColumns.length === 0) {
     return (
@@ -112,7 +127,7 @@ export function ViewingGuideTable({ data }: { data: ViewingGuideData }) {
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-        <label className="inline-flex cursor-pointer select-none items-center gap-2.5 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-800 shadow-sm transition hover:bg-zinc-50">
+        <label className="hidden cursor-pointer select-none items-center gap-2.5 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-800 shadow-sm transition hover:bg-zinc-50 sm:inline-flex">
           <input
             type="checkbox"
             className="h-4 w-4 rounded border-zinc-300 accent-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600/40 focus:ring-offset-1"
@@ -171,7 +186,7 @@ export function ViewingGuideTable({ data }: { data: ViewingGuideData }) {
         <div
           ref={containerRef}
           className={
-            fitToScreen
+            applyFitToScreen
               ? "overflow-x-hidden rounded-xl border border-zinc-200 bg-white shadow-sm"
               : "overflow-x-auto rounded-xl border border-zinc-200 bg-white shadow-sm"
           }
@@ -180,7 +195,7 @@ export function ViewingGuideTable({ data }: { data: ViewingGuideData }) {
             data={visibleData}
             lanes={lanes}
             layout={layout}
-            fitWidth={fitToScreen}
+            fitWidth={applyFitToScreen}
             className="viewing-guide-table"
           />
         </div>
