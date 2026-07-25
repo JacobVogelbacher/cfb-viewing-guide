@@ -7,6 +7,28 @@ import { CalendarGrid } from "./CalendarGrid";
 import { computeLayoutFitWidth, layoutFromScale } from "./calendar-layout";
 import { ScreenshotModal } from "./ScreenshotModal";
 
+const PREF_FIT_TO_SCREEN = "cfb-guide:fitToScreen";
+const PREF_HIDE_ESPN_PLUS = "cfb-guide:hideEspnPlus";
+
+function readSessionBool(key: string): boolean | null {
+  try {
+    const raw = sessionStorage.getItem(key);
+    if (raw === "true") return true;
+    if (raw === "false") return false;
+  } catch {
+    // sessionStorage unavailable (private mode, SSR, etc.)
+  }
+  return null;
+}
+
+function writeSessionBool(key: string, value: boolean) {
+  try {
+    sessionStorage.setItem(key, value ? "true" : "false");
+  } catch {
+    // ignore quota / access errors
+  }
+}
+
 function naturalLayout(hourCount: number) {
   return layoutFromScale(hourCount, 1);
 }
@@ -14,9 +36,26 @@ function naturalLayout(hourCount: number) {
 export function ViewingGuideTable({ data }: { data: ViewingGuideData }) {
   const [fitToScreen, setFitToScreen] = useState(false);
   const [hideEspnPlus, setHideEspnPlus] = useState(false);
+  const [prefsHydrated, setPrefsHydrated] = useState(false);
   const [screenshotOpen, setScreenshotOpen] = useState(false);
   const [containerWidth, setContainerWidth] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Restore UI prefs from sessionStorage after mount (avoid SSR mismatch).
+  useEffect(() => {
+    const fit = readSessionBool(PREF_FIT_TO_SCREEN);
+    const hide = readSessionBool(PREF_HIDE_ESPN_PLUS);
+    if (fit !== null) setFitToScreen(fit);
+    if (hide !== null) setHideEspnPlus(hide);
+    setPrefsHydrated(true);
+  }, []);
+
+  // Persist when the user toggles (skip the initial default false,false write).
+  useEffect(() => {
+    if (!prefsHydrated) return;
+    writeSessionBool(PREF_FIT_TO_SCREEN, fitToScreen);
+    writeSessionBool(PREF_HIDE_ESPN_PLUS, hideEspnPlus);
+  }, [fitToScreen, hideEspnPlus, prefsHydrated]);
 
   useEffect(() => {
     const el = containerRef.current;
