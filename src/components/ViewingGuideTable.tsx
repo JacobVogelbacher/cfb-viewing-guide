@@ -11,6 +11,7 @@ import {
   computeLayoutFitWidth,
   layoutFromScale,
   NATURAL_NETWORK_COL_PX,
+  NATURAL_TIME_COL_PX,
 } from "./calendar-layout";
 import { ExportImageModal } from "./ExportImageModal";
 import { MobileCalendarFilter } from "./MobileCalendarFilter";
@@ -31,6 +32,8 @@ const NETWORK_COL_SCALE: Record<NetworkLogoDensity, number> = {
   tablet: 0.8,
   mobile: 0.62,
 };
+/** Mobile-only: slightly narrower hour columns (network col unchanged). */
+const MOBILE_TIME_COL_SCALE = 0.86;
 /**
  * Container widths at/below this (tablet / small laptop) get taller rows and
  * larger team logos under Fit to Screen — width-fit otherwise shrinks them.
@@ -181,15 +184,27 @@ export function ViewingGuideTable({
       return next;
     }
     const base = naturalLayout(visibleData.hourColumns.length);
+    let next = base;
     if (colScale < 1) {
       const networkCol = Math.round(NATURAL_NETWORK_COL_PX * colScale);
-      return {
-        ...base,
+      next = {
+        ...next,
         networkCol,
-        tableWidth: networkCol + base.timelineWidth,
+        tableWidth: networkCol + next.timelineWidth,
       };
     }
-    return base;
+    // Mobile: tighter hour slots; keep network column width as-is.
+    if (networkLogoDensity === "mobile") {
+      const timeCol = Math.round(NATURAL_TIME_COL_PX * MOBILE_TIME_COL_SCALE);
+      const timelineWidth = timeCol * visibleData.hourColumns.length;
+      next = {
+        ...next,
+        timeCol,
+        timelineWidth,
+        tableWidth: next.networkCol + timelineWidth,
+      };
+    }
+    return next;
   }, [
     visibleData.hourColumns.length,
     applyFitToScreen,
