@@ -25,9 +25,7 @@ export default function NotFound() {
             </Link>
           </div>
         </div>
-        <p className="mt-6 text-center text-xs text-zinc-400">
-          CFB TV Guide · Saturday kickoffs in Eastern Time
-        </p>
+        <p className="mt-6 text-center text-xs text-zinc-400">CFB TV Guide</p>
       </div>
     </main>
   );

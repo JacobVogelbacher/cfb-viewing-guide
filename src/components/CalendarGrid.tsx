@@ -71,6 +71,11 @@ export function CalendarGrid({
    * padding on time-slot header cells (scaled headers get too tight).
    */
   mobileScreenshot = false,
+  /**
+   * Drop sticky network columns (html-to-image / canvas capture often mishandles
+   * position:sticky). Use for fixed-width PNG export.
+   */
+  disableSticky = false,
 }: {
   data: ViewingGuideData;
   lanes: NetworkLane[];
@@ -79,7 +84,9 @@ export function CalendarGrid({
   fitWidth?: boolean;
   className?: string;
   mobileScreenshot?: boolean;
+  disableSticky?: boolean;
 }) {
+  const networkColPosition = disableSticky ? "relative" : "sticky";
   const timelineMinutes = data.timelineMinutes;
   const {
     timeCol,
@@ -129,7 +136,7 @@ export function CalendarGrid({
         }}
       >
         <div
-          className="sticky left-0 z-20 flex shrink-0 items-center justify-center border-r border-zinc-200 bg-zinc-50 px-1"
+          className={`${networkColPosition} left-0 z-20 flex shrink-0 items-center justify-center border-r border-zinc-200 bg-zinc-50 px-1`}
           style={{ width: networkCol, minWidth: networkCol }}
         >
           <span className="sr-only">Network</span>
@@ -197,7 +204,7 @@ export function CalendarGrid({
             }}
           >
             <div
-              className={`sticky left-0 z-10 flex shrink-0 items-center justify-center border-r border-zinc-200 px-1 ${
+              className={`${networkColPosition} left-0 z-10 flex shrink-0 items-center justify-center border-r border-zinc-200 px-1 ${
                 isLastLaneOfNetwork ? "border-b border-zinc-200" : ""
               }`}
               style={{

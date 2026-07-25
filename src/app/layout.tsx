@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
 
+import { Logo } from "@/components/Logo";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -35,14 +37,8 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-zinc-100 font-sans text-zinc-900">
         <div>
           <div className="mx-auto flex max-w-[1600px] items-center justify-between px-4 pt-3 sm:px-6 lg:px-8">
-            <Link
-              href="/"
-              className="flex items-center gap-2 font-black tracking-tight"
-            >
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-700 text-sm text-white">
-                CFB
-              </span>
-              <span className="text-zinc-900">TV Guide</span>
+            <Link href="/" title="Home">
+              <Logo />
             </Link>
           </div>
         </div>

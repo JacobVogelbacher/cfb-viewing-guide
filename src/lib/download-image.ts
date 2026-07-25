@@ -48,6 +48,16 @@ export async function inlineImagesForExport(
       const src = img.currentSrc || img.src;
       if (!src || src.startsWith("data:") || src.startsWith("blob:")) return;
 
+      // Same-origin assets (/networks/*.svg, etc.) paint fine without a proxy.
+      // Only remote logos (ESPN/CFBD) need inlining to avoid canvas taint.
+      try {
+        const url = new URL(src, window.location.href);
+        if (url.origin === window.location.origin) return;
+        if (url.protocol !== "http:" && url.protocol !== "https:") return;
+      } catch {
+        return;
+      }
+
       originals.push({
         img,
         src: img.getAttribute("src") ?? src,

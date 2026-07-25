@@ -5,10 +5,7 @@ import { ViewingGuideTable } from "@/components/ViewingGuideTable";
 import { WeekNav } from "@/components/WeekNav";
 import { buildViewingGuide, getAvailableWeeks } from "@/lib/cfbd/build-guide";
 import { formatUsageLine, getCfbdUsage } from "@/lib/cfbd/usage";
-import {
-  getDefaultSeasonYear,
-  parseAllowedSeasonYear,
-} from "@/lib/time";
+import { getDefaultSeasonYear, parseAllowedSeasonYear } from "@/lib/time";
 
 type PageProps = {
   params: Promise<{ week: string }>;
@@ -22,8 +19,7 @@ export async function generateMetadata({
   const { week: weekParam } = await params;
   const { year: yearParam } = await searchParams;
   const week = Number(weekParam);
-  const year =
-    parseAllowedSeasonYear(yearParam) ?? getDefaultSeasonYear();
+  const year = parseAllowedSeasonYear(yearParam) ?? getDefaultSeasonYear();
   return {
     title: `Week ${week} Viewing Guide · ${year} CFB`,
     description: `College football TV schedule for Week ${week} of the ${year} season — network-by-network, time-slot grid.`,
@@ -176,7 +172,7 @@ export default async function WeekPage({ params, searchParams }: PageProps) {
         >
           CollegeFootballData.com
         </a>
-        . Saturday kickoffs in Eastern Time.
+        .
       </footer>
     </main>
   );

@@ -243,11 +243,11 @@ export function formatSaturdayLabel(
   if (!iso) return null;
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return null;
+  // No year — callers already show season year (e.g. "Week 1 · 2026 · Saturday, August 29").
   return new Intl.DateTimeFormat("en-US", {
     timeZone,
     weekday: "long",
     month: "long",
     day: "numeric",
-    year: "numeric",
   }).format(date);
 }

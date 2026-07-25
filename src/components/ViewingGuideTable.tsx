@@ -5,6 +5,7 @@ import type { ViewingGuideData } from "@/lib/cfbd/types";
 import { expandNetworkLanes } from "@/lib/cfbd/expand-rows";
 import { CalendarGrid } from "./CalendarGrid";
 import { computeLayoutFitWidth, layoutFromScale } from "./calendar-layout";
+import { ExportImageModal } from "./ExportImageModal";
 import { ScreenshotModal } from "./ScreenshotModal";
 
 const PREF_FIT_TO_SCREEN = "cfb-guide:fitToScreen";
@@ -42,6 +43,7 @@ export function ViewingGuideTable({ data }: { data: ViewingGuideData }) {
   /** True below Tailwind `sm`; Fit to Screen is ignored while true. */
   const [isMobile, setIsMobile] = useState(false);
   const [screenshotOpen, setScreenshotOpen] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
   const [containerWidth, setContainerWidth] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -151,8 +153,31 @@ export function ViewingGuideTable({ data }: { data: ViewingGuideData }) {
 
         <button
           type="button"
+          onClick={() => setExportOpen(true)}
+          disabled={visibleData.networks.length === 0}
+          className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-semibold text-zinc-800 shadow-sm transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <svg
+            className="h-4 w-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden
+          >
+            <path d="M12 3v12" />
+            <path d="m7 10 5 5 5-5" />
+            <path d="M5 21h14" />
+          </svg>
+          Save image
+        </button>
+
+        <button
+          type="button"
           onClick={() => setScreenshotOpen(true)}
-          className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-3 py-2 text-sm font-semibold text-white shadow-sm cursor-pointer transition hover:bg-emerald-800"
+          className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-emerald-700 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-800"
         >
           <svg
             className="h-4 w-4"
@@ -206,6 +231,13 @@ export function ViewingGuideTable({ data }: { data: ViewingGuideData }) {
         open={screenshotOpen}
         onClose={() => setScreenshotOpen(false)}
       />
+
+      {exportOpen ? (
+        <ExportImageModal
+          data={visibleData}
+          onClose={() => setExportOpen(false)}
+        />
+      ) : null}
     </div>
   );
 }
