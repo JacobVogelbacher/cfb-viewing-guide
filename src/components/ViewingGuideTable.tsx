@@ -12,6 +12,11 @@ const PREF_FIT_TO_SCREEN = "cfb-guide:fitToScreen";
 const PREF_HIDE_ESPN_PLUS = "cfb-guide:hideEspnPlus";
 /** Tailwind `sm` (640px): Fit to Screen is desktop-only below this width. */
 const MOBILE_MAX_WIDTH_MQ = "(max-width: 639px)";
+/**
+ * Container widths at/below this (tablet / small laptop) get taller rows and
+ * larger team logos under Fit to Screen — width-fit otherwise shrinks them.
+ */
+const TABLET_FIT_MAX_CONTAINER_PX = 1100;
 
 function readSessionBool(key: string): boolean | null {
   try {
@@ -106,10 +111,22 @@ export function ViewingGuideTable({ data }: { data: ViewingGuideData }) {
 
   const layout = useMemo(() => {
     if (applyFitToScreen) {
-      return computeLayoutFitWidth(
+      const base = computeLayoutFitWidth(
         visibleData.hourColumns.length,
         containerWidth,
       );
+      // Tablet Fit to Screen: keep width fit, restore legible row/logo size.
+      if (
+        containerWidth > 0 &&
+        containerWidth <= TABLET_FIT_MAX_CONTAINER_PX
+      ) {
+        return {
+          ...base,
+          rowHeight: base.rowHeight * 1.4,
+          logoSize: Math.max(base.logoSize * 1.45, base.logoSize + 8),
+        };
+      }
+      return base;
     }
     return naturalLayout(visibleData.hourColumns.length);
   }, [visibleData.hourColumns.length, applyFitToScreen, containerWidth]);
