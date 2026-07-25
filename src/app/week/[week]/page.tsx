@@ -135,34 +135,38 @@ export default async function WeekPage({ params, searchParams }: PageProps) {
   }
 
   return (
-    <main className="mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
-      <header className="mb-8">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-black tracking-tight text-zinc-900 sm:text-4xl">
-              Week {week}
-              <span className="ml-2 text-lg font-semibold text-zinc-400 sm:text-xl">
-                {year} Season
-              </span>
-            </h1>
-            <p className="mt-1 text-sm text-zinc-500">
-              {data.saturdayLabel
-                ? `${data.saturdayLabel}`
-                : data.weekLabel
-                  ? `${data.weekLabel}`
-                  : ""}
-            </p>
+    <main className="mx-auto w-full max-w-[1600px] py-8">
+      <div className="px-4 sm:px-6 lg:px-8">
+        <header className="mb-8">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-black tracking-tight text-zinc-900 sm:text-4xl">
+                Week {week}
+                <span className="ml-2 text-lg font-semibold text-zinc-400 sm:text-xl">
+                  {year} Season
+                </span>
+              </h1>
+              <p className="mt-1 text-sm text-zinc-500">
+                {data.saturdayLabel
+                  ? `${data.saturdayLabel}`
+                  : data.weekLabel
+                    ? `${data.weekLabel}`
+                    : ""}
+              </p>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      <div className="mb-6">
-        <WeekNav year={year} week={week} weeks={weeks} />
+        <div className="mb-6">
+          <WeekNav year={year} week={week} weeks={weeks} />
+        </div>
       </div>
 
-      <ViewingGuideTable data={data} />
+      <div className="sm:px-6 lg:px-8">
+        <ViewingGuideTable data={data} />
+      </div>
 
-      <footer className="mt-10 border-t border-zinc-200 pt-6 text-center text-xs text-zinc-400">
+      <footer className="mt-10 border-t border-zinc-200 pt-6 px-4 sm:px-6 lg:px-8 text-center text-xs text-zinc-400">
         Data from{" "}
         <a
           href="https://collegefootballdata.com"

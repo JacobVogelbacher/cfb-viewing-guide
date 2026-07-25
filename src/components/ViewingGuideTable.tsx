@@ -116,10 +116,7 @@ export function ViewingGuideTable({ data }: { data: ViewingGuideData }) {
         containerWidth,
       );
       // Tablet Fit to Screen: keep width fit, restore legible row/logo size.
-      if (
-        containerWidth > 0 &&
-        containerWidth <= TABLET_FIT_MAX_CONTAINER_PX
-      ) {
+      if (containerWidth > 0 && containerWidth <= TABLET_FIT_MAX_CONTAINER_PX) {
         return {
           ...base,
           rowHeight: base.rowHeight * 1.4,
@@ -133,7 +130,7 @@ export function ViewingGuideTable({ data }: { data: ViewingGuideData }) {
 
   if (data.networks.length === 0 || data.hourColumns.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 px-6 py-16 text-center">
+      <div className="sm:rounded-xl border border-dashed border-zinc-300 bg-zinc-50 px-6 py-16 text-center">
         <p className="text-lg font-semibold text-zinc-800">No Saturday games</p>
         <p className="mt-2 text-sm text-zinc-500">
           No FBS games kick off on Saturday (ET) for Week {data.week},{" "}
@@ -230,8 +227,8 @@ export function ViewingGuideTable({ data }: { data: ViewingGuideData }) {
           ref={containerRef}
           className={
             applyFitToScreen
-              ? "overflow-x-hidden rounded-xl border border-zinc-200 bg-white shadow-sm"
-              : "overflow-x-auto rounded-xl border border-zinc-200 bg-white shadow-sm"
+              ? "overflow-x-hidden sm:rounded-xl border border-zinc-200 bg-white shadow-sm"
+              : "overflow-x-auto sm:rounded-xl border border-zinc-200 bg-white shadow-sm"
           }
         >
           <CalendarGrid
