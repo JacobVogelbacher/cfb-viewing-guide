@@ -244,7 +244,6 @@ export function ExportImageModal({
               lanes={lanes}
               layout={layout}
               fitWidth={false}
-              mobileScreenshot={false}
               disableSticky
               className="viewing-guide-export"
             />

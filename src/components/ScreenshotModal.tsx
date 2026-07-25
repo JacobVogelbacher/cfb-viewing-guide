@@ -4,8 +4,15 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { ViewingGuideData } from "@/lib/cfbd/types";
 import { expandNetworkLanes } from "@/lib/cfbd/expand-rows";
 import { CalendarGrid } from "./CalendarGrid";
-import { fitScaleToViewport, layoutFromScale } from "./calendar-layout";
+import { computeLayoutFitWidth } from "./calendar-layout";
+import { Logo } from "./Logo";
 
+/**
+ * Device screenshot mode: scale the calendar to the stage **width** only
+ * (uniform zoom — not height-fit). That keeps the guide legible and fully
+ * capturable in a full-page screenshot: no horizontal overflow, vertical
+ * scroll is fine.
+ */
 export function ScreenshotModal({
   data,
   open,
@@ -16,13 +23,25 @@ export function ScreenshotModal({
   onClose: () => void;
 }) {
   const stageRef = useRef<HTMLDivElement>(null);
-  const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
-  /** Narrow viewports: compact noon label + roomier time-header padding. */
-  const [mobileScreenshot, setMobileScreenshot] = useState(false);
+  const [stageWidth, setStageWidth] = useState(0);
 
   const lanes = useMemo(
     () => expandNetworkLanes(data.networks),
     [data.networks],
+  );
+
+  /** Width-only scale: never compress to fit the viewport height. */
+  const layout = useMemo(
+    () => computeLayoutFitWidth(data.hourColumns.length, stageWidth),
+    [data.hourColumns.length, stageWidth],
+  );
+
+  const titleLine = useMemo(
+    () =>
+      [`Week ${data.week}`, String(data.year), data.saturdayLabel || null]
+        .filter(Boolean)
+        .join(" · "),
+    [data.week, data.year, data.saturdayLabel],
   );
 
   useEffect(() => {
@@ -36,15 +55,9 @@ export function ScreenshotModal({
     };
     window.addEventListener("keydown", onKey);
 
-    const mq = window.matchMedia("(max-width: 639px)");
-    const syncMobile = () => setMobileScreenshot(mq.matches);
-    syncMobile();
-    mq.addEventListener("change", syncMobile);
-
     return () => {
       document.body.style.overflow = prevOverflow;
       window.removeEventListener("keydown", onKey);
-      mq.removeEventListener("change", syncMobile);
     };
   }, [open, onClose]);
 
@@ -53,25 +66,13 @@ export function ScreenshotModal({
     const el = stageRef.current;
     if (!el) return;
 
-    const update = () => {
-      setStageSize({ width: el.clientWidth, height: el.clientHeight });
-    };
+    const update = () => setStageWidth(el.clientWidth);
     update();
 
     const ro = new ResizeObserver(() => update());
     ro.observe(el);
     return () => ro.disconnect();
   }, [open]);
-
-  const layout = useMemo(() => {
-    const scale = fitScaleToViewport(
-      data.hourColumns.length,
-      lanes.length,
-      stageSize.width,
-      stageSize.height,
-    );
-    return layoutFromScale(data.hourColumns.length, scale);
-  }, [data.hourColumns.length, lanes.length, stageSize]);
 
   if (!open) return null;
 
@@ -82,39 +83,52 @@ export function ScreenshotModal({
       aria-modal="true"
       aria-label="Screenshot view of Saturday calendar"
     >
-      {/* Compact chrome — stay out of the way for OS screenshots */}
+      {/* Compact chrome — stay out of the white capture surface */}
       <div className="flex shrink-0 items-center justify-between gap-3 border-b border-zinc-800 bg-zinc-900 px-3 py-2 text-white">
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold">
-            Week {data.week} · {data.year}
-            {data.saturdayLabel ? ` · ${data.saturdayLabel}` : ""}
-          </p>
+          <p className="truncate text-sm font-semibold">{titleLine}</p>
           <p className="text-[11px] text-zinc-400">
-            Take a screenshot with your device
+            Take a full-page screenshot
           </p>
         </div>
         <button
           type="button"
           onClick={onClose}
-          className="shrink-0 rounded-lg bg-white px-3 py-1.5 text-sm font-semibold text-zinc-900 shadow-sm transition hover:bg-zinc-100"
+          className="shrink-0 rounded-lg bg-white px-3 py-1.5 text-sm font-semibold text-zinc-900 shadow-sm cursor-pointer transition hover:bg-zinc-100"
         >
           Close
         </button>
       </div>
 
-      {/* Stage: calendar scaled to fit width + height of remaining viewport */}
+      {/*
+        Vertical scroll only. Calendar is scaled to stage width (uniform zoom)
+        so full-page screenshots include every network without horizontal crop.
+      */}
       <div
         ref={stageRef}
-        className="flex min-h-0 flex-1 items-center justify-center overflow-hidden bg-white p-1 sm:p-2"
+        className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto bg-white"
       >
-        {stageSize.width > 0 && stageSize.height > 0 ? (
-          <CalendarGrid
-            data={data}
-            lanes={lanes}
-            layout={layout}
-            mobileScreenshot={mobileScreenshot}
-            className="viewing-guide-table shadow-sm"
-          />
+        {stageWidth > 0 ? (
+          <div className="bg-white text-zinc-900" style={{ width: stageWidth }}>
+            <header className="border-b border-zinc-200 px-3 py-2.5 sm:px-4 sm:py-3">
+              <Logo />
+            </header>
+
+            {data.networks.length > 0 && data.hourColumns.length > 0 ? (
+              <CalendarGrid
+                data={data}
+                lanes={lanes}
+                layout={layout}
+                fitWidth
+                screenshotLayout
+                className="viewing-guide-table"
+              />
+            ) : (
+              <p className="px-4 py-12 text-center text-sm text-zinc-500">
+                No networks to show for this week.
+              </p>
+            )}
+          </div>
         ) : null}
       </div>
     </div>

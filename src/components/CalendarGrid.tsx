@@ -3,6 +3,7 @@ import type { NetworkLane } from "@/lib/cfbd/expand-rows";
 import { getNetworkLogo, NETWORK_COLORS } from "@/lib/networks";
 import type { CalendarLayout } from "./calendar-layout";
 import { MatchupCard } from "./MatchupCard";
+import { cn } from "@/lib/utils";
 
 function NetworkLabel({
   network,
@@ -67,10 +68,10 @@ export function CalendarGrid({
   fitWidth,
   className,
   /**
-   * Mobile screenshot tweaks: "12pm" instead of "Noon", and extra vertical
-   * padding on time-slot header cells (scaled headers get too tight).
+   * Screenshot view: roomier vertical chrome (headers, rows, logos). Width is
+   * already fit to the stage; height can grow with scroll.
    */
-  mobileScreenshot = false,
+  screenshotLayout = false,
   /**
    * Drop sticky network columns (html-to-image / canvas capture often mishandles
    * position:sticky). Use for fixed-width PNG export.
@@ -83,7 +84,7 @@ export function CalendarGrid({
   /** When true, table stretches to 100% width with equal % hour columns. */
   fitWidth?: boolean;
   className?: string;
-  mobileScreenshot?: boolean;
+  screenshotLayout?: boolean;
   disableSticky?: boolean;
 }) {
   const networkColPosition = disableSticky ? "relative" : "sticky";
@@ -91,13 +92,20 @@ export function CalendarGrid({
   const {
     timeCol,
     networkCol,
-    rowHeight,
-    headerHeight,
-    logoSize,
+    rowHeight: baseRowHeight,
+    headerHeight: baseHeaderHeight,
+    logoSize: baseLogoSize,
     tableWidth,
     timelineWidth,
     scale,
   } = layout;
+
+  // Screenshot mode: taller rows + larger team marks (vertical space is free).
+  const rowHeight = screenshotLayout ? baseRowHeight * 2 : baseRowHeight;
+  const logoSize = screenshotLayout
+    ? Math.max(baseLogoSize * 1.55, baseLogoSize + 15)
+    : baseLogoSize;
+  const headerHeight = screenshotLayout ? baseHeaderHeight : baseHeaderHeight;
 
   let networkGroupIndex = -1;
   const groupIndexByRow = lanes.map((lane) => {
@@ -111,12 +119,6 @@ export function CalendarGrid({
   const networkBadgeMinW = Math.max(24, Math.round(72 * scale));
   const cellPadY = Math.max(1, Math.round(6 * scale));
   const barPadX = Math.max(0.5, Math.round(2 * scale));
-  // Extra top/bottom padding on time headers (absolute-ish floor so tiny
-  // scales still breathe).
-  const headerPadY = mobileScreenshot
-    ? Math.max(5, Math.round(8 * scale) + 3)
-    : 0;
-  const effectiveHeaderHeight = headerHeight + headerPadY * 2;
 
   return (
     <div
@@ -132,7 +134,6 @@ export function CalendarGrid({
         className="flex border-b border-zinc-300 bg-zinc-50 text-zinc-800"
         style={{
           width: fitWidth ? "100%" : tableWidth,
-          height: effectiveHeaderHeight,
         }}
       >
         <div
@@ -146,12 +147,11 @@ export function CalendarGrid({
           style={{ width: fitWidth ? undefined : timelineWidth }}
         >
           {data.hourColumns.map((col) => {
-            // Compact "12pm" for tight headers: mobile screenshot, or Fit to
-            // Screen on mobile (sm+ keeps "Noon").
+            // Compact noon label in screenshot mode / narrow Fit to Screen.
             const isNoon = col.hour24 === 12;
             const label =
-              isNoon && mobileScreenshot ? (
-                "12pm"
+              isNoon && screenshotLayout ? (
+                "12PM"
               ) : isNoon && fitWidth ? (
                 <>
                   <span className="sm:hidden">12pm</span>
@@ -163,7 +163,10 @@ export function CalendarGrid({
             return (
               <div
                 key={col.index}
-                className="flex shrink-0 items-center justify-center border-r border-zinc-200 px-0.5 text-center font-bold uppercase tracking-wide text-zinc-700 last:border-r-0"
+                className={cn(
+                  "flex shrink-0 items-center justify-center py-2 border-r border-zinc-200 px-0.5 text-center font-bold uppercase tracking-wide text-zinc-700 last:border-r-0",
+                  screenshotLayout && "py-1",
+                )}
                 style={{
                   width: fitWidth
                     ? `${100 / data.hourColumns.length}%`
@@ -172,8 +175,6 @@ export function CalendarGrid({
                     ? `${100 / data.hourColumns.length}%`
                     : timeCol,
                   fontSize: headerFontPx,
-                  paddingTop: headerPadY,
-                  paddingBottom: headerPadY,
                 }}
               >
                 <span className="block truncate">{label}</span>
@@ -260,8 +261,7 @@ export function CalendarGrid({
               {lane.games.map((game) => {
                 const leftPct =
                   (game.startOffsetMinutes / timelineMinutes) * 100;
-                const widthPct =
-                  (game.durationMinutes / timelineMinutes) * 100;
+                const widthPct = (game.durationMinutes / timelineMinutes) * 100;
                 const clampedWidth = Math.min(
                   widthPct,
                   Math.max(0, 100 - leftPct),
