@@ -18,7 +18,9 @@ function TeamLogo({
       title={name}
     >
       {logo ? (
-        // Native img (not next/image) so export can rewrite src to data URLs.
+        // Native img (not next/image) so export can use CORS / proxy inlining.
+        // crossOrigin must be set before load so html-to-image can paint remote
+        // logos (ESPN CDN sends Access-Control-Allow-Origin: *).
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={logo}
@@ -27,6 +29,9 @@ function TeamLogo({
           height={size}
           className="h-full w-full object-contain"
           draggable={false}
+          crossOrigin={
+            /^https?:\/\//i.test(logo) ? "anonymous" : undefined
+          }
         />
       ) : (
         <span

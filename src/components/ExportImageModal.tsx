@@ -177,9 +177,6 @@ export function ExportImageModal({
               aria-hidden
             />
             <p className="text-sm font-medium">Generating image…</p>
-            <p className="text-xs text-zinc-500">
-              Building a {EXPORT_TABLE_WIDTH_PX}px-wide calendar
-            </p>
           </div>
         ) : null}
 
