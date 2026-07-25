@@ -216,9 +216,20 @@ export function CalendarGrid({
         const stickyBg = groupIndex % 2 === 0 ? "#ffffff" : "#fafafa";
         const rowBg = groupIndex % 2 === 0 ? "bg-white" : "bg-zinc-50";
         const showNetworkLabel = lane.isFirstLane;
-        // Multi-lane networks: no bottom border on the sticky network column
-        // until the last lane, so stacked rows read as one network cell.
+        // Multi-lane networks: no bottom border until the last lane, so stacked
+        // rows read as one network cell.
         const isLastLaneOfNetwork = lane.laneIndex === lane.laneCount - 1;
+        const isMultiLane = lane.laneCount > 1;
+        // Tighter vertical pad where this row abuts another lane of the same
+        // network; outer edges keep full padding. Row height shrinks by the
+        // same amount so matchup cards stay the same size.
+        const tightPadY = Math.max(1, Math.round(cellPadY * 0.35));
+        const padTop =
+          isMultiLane && !lane.isFirstLane ? tightPadY : cellPadY;
+        const padBottom =
+          isMultiLane && !isLastLaneOfNetwork ? tightPadY : cellPadY;
+        const effectiveRowHeight =
+          rowHeight - (cellPadY - padTop) - (cellPadY - padBottom);
 
         return (
           <div
@@ -226,7 +237,7 @@ export function CalendarGrid({
             className={`flex ${rowBg}`}
             style={{
               width: fitWidth ? "100%" : tableWidth,
-              height: rowHeight,
+              height: effectiveRowHeight,
             }}
           >
             <div
@@ -264,7 +275,7 @@ export function CalendarGrid({
               }`}
               style={{
                 width: fitWidth ? undefined : timelineWidth,
-                height: rowHeight,
+                height: effectiveRowHeight,
               }}
             >
               <div className="pointer-events-none absolute inset-0 flex">
@@ -302,8 +313,8 @@ export function CalendarGrid({
                     style={{
                       left: `${leftPct}%`,
                       width: `${clampedWidth}%`,
-                      top: cellPadY,
-                      bottom: cellPadY,
+                      top: padTop,
+                      bottom: padBottom,
                       paddingLeft: barPadX,
                       paddingRight: barPadX,
                     }}
