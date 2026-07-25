@@ -13,6 +13,7 @@ import {
   NATURAL_NETWORK_COL_PX,
 } from "./calendar-layout";
 import { ExportImageModal } from "./ExportImageModal";
+import { MobileCalendarFilter } from "./MobileCalendarFilter";
 import { ScreenshotModal } from "./ScreenshotModal";
 import { cn } from "@/lib/utils";
 
@@ -214,7 +215,7 @@ export function ViewingGuideTable({ data }: { data: ViewingGuideData }) {
         </label>
 
         {hasEspnPlus ? (
-          <label className="inline-flex cursor-pointer select-none items-center gap-2.5 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-800 shadow-sm transition hover:bg-zinc-50">
+          <label className="hidden cursor-pointer select-none items-center gap-2.5 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-800 shadow-sm transition hover:bg-zinc-50 sm:inline-flex">
             <input
               type="checkbox"
               className="h-4 w-4 rounded border-zinc-300 accent-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600/40 focus:ring-offset-1"
@@ -281,6 +282,18 @@ export function ViewingGuideTable({ data }: { data: ViewingGuideData }) {
             Uncheck &ldquo;Hide ESPN+&rdquo; to see streaming games for this
             week.
           </p>
+          {/* Toolbar control is sm+ only; keep a mobile escape hatch when the grid is gone. */}
+          {hasEspnPlus ? (
+            <label className="mt-6 inline-flex cursor-pointer select-none items-center gap-2.5 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-800 shadow-sm transition hover:bg-zinc-50 sm:hidden">
+              <input
+                type="checkbox"
+                className="h-4 w-4 rounded border-zinc-300 accent-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600/40 focus:ring-offset-1"
+                checked={hideEspnPlus}
+                onChange={(e) => setHideEspnPlus(e.target.checked)}
+              />
+              <span>Hide ESPN+</span>
+            </label>
+          ) : null}
         </div>
       ) : (
         <div
@@ -298,6 +311,16 @@ export function ViewingGuideTable({ data }: { data: ViewingGuideData }) {
             fitWidth={applyFitToScreen}
             networkLogoDensity={networkLogoDensity}
             className="viewing-guide-table"
+            networkCorner={
+              hasEspnPlus ? (
+                <MobileCalendarFilter
+                  hideEspnPlus={hideEspnPlus}
+                  onHideEspnPlusChange={setHideEspnPlus}
+                />
+              ) : (
+                <span className="sr-only">Network</span>
+              )
+            }
           />
         </div>
       )}

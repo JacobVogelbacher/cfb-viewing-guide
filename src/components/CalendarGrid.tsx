@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { ViewingGuideData } from "@/lib/cfbd/types";
 import type { NetworkLane } from "@/lib/cfbd/expand-rows";
 import { getNetworkLogo, NETWORK_COLORS } from "@/lib/networks";
@@ -97,6 +98,8 @@ export function CalendarGrid({
   disableSticky = false,
   /** Mobile/tablet: smaller network logos in the sticky column. */
   networkLogoDensity = "default",
+  /** Optional control in the sticky network header cell (e.g. mobile filters). */
+  networkCorner,
 }: {
   data: ViewingGuideData;
   lanes: NetworkLane[];
@@ -107,6 +110,7 @@ export function CalendarGrid({
   screenshotLayout?: boolean;
   disableSticky?: boolean;
   networkLogoDensity?: NetworkLogoDensity;
+  networkCorner?: ReactNode;
 }) {
   const networkColPosition = disableSticky ? "relative" : "sticky";
   const timelineMinutes = data.timelineMinutes;
@@ -161,7 +165,7 @@ export function CalendarGrid({
           className={`${networkColPosition} left-0 z-20 flex shrink-0 items-center justify-center border-r border-zinc-200 bg-zinc-50 px-1`}
           style={{ width: networkCol, minWidth: networkCol }}
         >
-          <span className="sr-only">Network</span>
+          {networkCorner ?? <span className="sr-only">Network</span>}
         </div>
         <div
           className="flex min-w-0 flex-1"

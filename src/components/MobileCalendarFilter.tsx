@@ -1,0 +1,61 @@
+"use client";
+
+import { useState } from "react";
+import { ListFilter } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+
+export function MobileCalendarFilter({
+  hideEspnPlus,
+  onHideEspnPlusChange,
+}: {
+  hideEspnPlus: boolean;
+  onHideEspnPlusChange: (value: boolean) => void;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="sm:hidden">
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger
+          render={
+            <Button
+              variant="outline"
+              size="icon-sm"
+              aria-label="Filters"
+              className={cn(
+                "border-zinc-200 bg-white text-zinc-700 shadow-sm hover:bg-zinc-50",
+                (open || hideEspnPlus) &&
+                  "border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-50",
+              )}
+            />
+          }
+        >
+          <ListFilter aria-hidden />
+        </PopoverTrigger>
+        <PopoverContent
+          align="start"
+          side="bottom"
+          sideOffset={6}
+          className="w-auto min-w-[11.5rem] p-2"
+        >
+          <label className="flex cursor-pointer select-none items-center gap-2.5 rounded-md px-2 py-2 text-sm font-medium text-zinc-800 transition hover:bg-zinc-50">
+            <Checkbox
+              checked={hideEspnPlus}
+              onCheckedChange={(checked) =>
+                onHideEspnPlusChange(checked === true)
+              }
+            />
+            <span>Hide ESPN+</span>
+          </label>
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+}
