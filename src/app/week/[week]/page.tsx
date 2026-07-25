@@ -135,7 +135,7 @@ export default async function WeekPage({ params, searchParams }: PageProps) {
   }
 
   return (
-    <main className="mx-auto w-full max-w-[1600px] py-8">
+    <main className="mx-auto w-full max-w-[1600px] pt-5 pb-8">
       <div className="px-4 sm:px-6 lg:px-8">
         <header className="mb-8">
           <div className="flex flex-wrap items-end justify-between gap-4">

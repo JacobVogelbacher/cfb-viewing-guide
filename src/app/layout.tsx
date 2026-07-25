@@ -35,13 +35,12 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-zinc-100 font-sans text-zinc-900">
-        <div>
-          <div className="mx-auto flex max-w-[1600px] items-center justify-between px-4 pt-3 sm:px-6 lg:px-8">
-            <Link href="/" title="Home">
-              <Logo />
-            </Link>
-          </div>
+        <div className="sticky top-0 left-0 z-30 flex max-w-[1600px] items-center justify-between bg-zinc-100 px-4 py-3 sm:px-6 lg:px-8 xl:static">
+          <Link href="/" title="Home">
+            <Logo />
+          </Link>
         </div>
+
         {children}
       </body>
     </html>
