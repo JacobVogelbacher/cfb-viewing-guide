@@ -151,7 +151,8 @@ export function ViewingGuideTable({ data }: { data: ViewingGuideData }) {
           </label>
         ) : null}
 
-        <button
+        {/* // ! Hiding this for now since the team logos were showing up blank on prod */}
+        {/* <button
           type="button"
           onClick={() => setExportOpen(true)}
           disabled={visibleData.networks.length === 0}
@@ -172,12 +173,12 @@ export function ViewingGuideTable({ data }: { data: ViewingGuideData }) {
             <path d="M5 21h14" />
           </svg>
           Save image
-        </button>
+        </button> */}
 
         <button
           type="button"
           onClick={() => setScreenshotOpen(true)}
-          className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-emerald-700 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-800"
+          className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-emerald-700 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-800 md:hidden"
         >
           <svg
             className="h-4 w-4"
