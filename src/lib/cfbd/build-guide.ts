@@ -2,9 +2,11 @@ import { unstable_cache } from "next/cache";
 import { compareNetworks, normalizeOutlet } from "@/lib/networks";
 import {
   buildHourColumns,
+  easternDateKey,
   formatSaturdayLabel,
   formatWeekRange,
   GAME_DURATION_MINUTES,
+  pickPrimarySaturdayDate,
   resolveTimelineStartHour,
   saturdayMinutesFromMidnight,
   usThanksgivingDate,
@@ -178,13 +180,23 @@ async function buildViewingGuideUncached(options: {
     if (draft) drafts.push(draft);
   }
 
+  // CFBD week 1 includes "Week 0" (an earlier Saturday). When multiple
+  // Saturdays appear, keep only the primary slate so Week 0 is hidden for now.
+  const primarySaturday = pickPrimarySaturdayDate(
+    drafts.map((d) => d.startTime),
+  );
+  const saturdayDrafts =
+    primarySaturday == null
+      ? drafts
+      : drafts.filter((d) => easternDateKey(d.startTime) === primarySaturday);
+
   // Timeline origin: noon by default; pull earlier only for pre-noon Saturday games
   const timelineStartHour = resolveTimelineStartHour(
-    drafts.map((d) => d.minutesFromMidnight),
+    saturdayDrafts.map((d) => d.minutesFromMidnight),
   );
   const originMinutes = timelineStartHour * 60;
 
-  const viewingGames: ViewingGame[] = drafts.map(
+  const viewingGames: ViewingGame[] = saturdayDrafts.map(
     ({ minutesFromMidnight, ...rest }) => ({
       ...rest,
       startOffsetMinutes: minutesFromMidnight - originMinutes,
@@ -260,10 +272,15 @@ export async function buildViewingGuide(options: {
   const tier = scheduleCacheTier(year, week);
   const revalidate = CFBD_CACHE_TTL_SECONDS[tier];
 
-  // Bump cache key prefix when guide shape changes
+  // Bump cache key prefix when guide shape / filtering changes
   return unstable_cache(
     () => buildViewingGuideUncached({ year, week, seasonType }),
-    ["viewing-guide-v3-saturday-any-kickoff", String(year), String(week), seasonType],
+    [
+      "viewing-guide-v4-primary-saturday",
+      String(year),
+      String(week),
+      seasonType,
+    ],
     {
       revalidate,
       tags: [
@@ -282,13 +299,17 @@ export async function buildViewingGuide(options: {
  * Army–Navy, and sometimes an empty gap week after Thanksgiving). Those all
  * start after Thanksgiving and are dropped from nav + default week.
  *
+ * Week 0 is never shown (CFBD usually folds those games into week 1; if a
+ * calendar ever exposes week 0 we still hide it).
+ *
  * Year-dependent: e.g. 2025 Thanksgiving = week 14; 2026 = week 13.
  */
 function isDisplayedRegularWeek(
-  week: { seasonType: SeasonType; startDate: string },
+  week: { week: number; seasonType: SeasonType; startDate: string },
   thanksgiving: Date,
 ): boolean {
   if (week.seasonType !== "regular") return false;
+  if (week.week === 0) return false;
   const start = new Date(week.startDate);
   if (Number.isNaN(start.getTime())) return false;
   // Keep weeks whose Monday start is on/before Thanksgiving (that week's Sat

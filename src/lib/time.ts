@@ -131,6 +131,44 @@ export function isSaturdayEastern(iso: string | null | undefined): boolean {
   return parts?.weekday === "Sat";
 }
 
+/** Eastern calendar date as YYYY-MM-DD, or null if invalid. */
+export function easternDateKey(iso: string | null | undefined): string | null {
+  if (!iso) return null;
+  const parts = getEasternParts(iso);
+  if (!parts) return null;
+  const month = String(parts.month).padStart(2, "0");
+  const day = String(parts.day).padStart(2, "0");
+  return `${parts.year}-${month}-${day}`;
+}
+
+/**
+ * CFBD packs "Week 0" (late-August early slate) into week 1, so one week can
+ * contain two Saturdays. Prefer the primary Saturday: most kickoffs, ties →
+ * later date. Used to drop Week 0 games from the Week 1 guide for now.
+ *
+ * @returns YYYY-MM-DD Eastern date, or null if no Saturday times given
+ */
+export function pickPrimarySaturdayDate(
+  isoTimes: Array<string | null | undefined>,
+): string | null {
+  const counts = new Map<string, number>();
+
+  for (const iso of isoTimes) {
+    if (!iso) continue;
+    const parts = getEasternParts(iso);
+    if (!parts || parts.weekday !== "Sat") continue;
+    const key = easternDateKey(iso);
+    if (!key) continue;
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+
+  if (counts.size === 0) return null;
+
+  return [...counts.entries()].sort(
+    (a, b) => b[1] - a[1] || b[0].localeCompare(a[0]),
+  )[0][0];
+}
+
 /**
  * Minutes from local midnight on Saturday (Eastern) for a kickoff.
  * Includes pre-noon games (e.g. 11:00 → 660). Null if not Saturday / invalid.
