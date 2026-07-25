@@ -48,8 +48,8 @@ export function WeekNav({
         )}
       </div>
 
-      {/* Week pills — sm and up */}
-      <div className="hidden flex-wrap items-center gap-1.5 sm:flex">
+      {/* Week pills — desktop */}
+      <div className="hidden flex-wrap items-center gap-1.5 lg:flex">
         {weeks.map((w) => {
           const active = w === week;
           return (
@@ -69,12 +69,12 @@ export function WeekNav({
         })}
       </div>
 
-      <div className="flex flex-wrap items-center gap-3 sm:contents">
+      <div className="flex flex-wrap items-center gap-3 lg:contents">
         {/* Week dropdown — mobile only (same pattern as season select) */}
         <form
           action="/week"
           method="get"
-          className="flex items-center gap-2 sm:hidden"
+          className="flex items-center gap-2 lg:hidden"
         >
           <label htmlFor="week" className="text-xs font-medium text-zinc-500">
             Week
