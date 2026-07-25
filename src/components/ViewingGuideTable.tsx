@@ -60,7 +60,16 @@ function naturalLayout(hourCount: number) {
   return layoutFromScale(hourCount, 1);
 }
 
-export function ViewingGuideTable({ data }: { data: ViewingGuideData }) {
+export function ViewingGuideTable({
+  data,
+  screenshotOpen,
+  onScreenshotOpenChange,
+}: {
+  data: ViewingGuideData;
+  /** Controlled by page header action (mobile Screenshot view). */
+  screenshotOpen: boolean;
+  onScreenshotOpenChange: (open: boolean) => void;
+}) {
   const [fitToScreen, setFitToScreen] = useState(false);
   const [hideEspnPlus, setHideEspnPlus] = useState(false);
   const [prefsHydrated, setPrefsHydrated] = useState(false);
@@ -68,7 +77,6 @@ export function ViewingGuideTable({ data }: { data: ViewingGuideData }) {
   const [isMobile, setIsMobile] = useState(false);
   /** True below Tailwind `lg` (includes phone + tablet). */
   const [isTabletOrBelow, setIsTabletOrBelow] = useState(false);
-  const [screenshotOpen, setScreenshotOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const [containerWidth, setContainerWidth] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -191,20 +199,28 @@ export function ViewingGuideTable({ data }: { data: ViewingGuideData }) {
 
   if (data.networks.length === 0 || data.hourColumns.length === 0) {
     return (
-      <div className="sm:rounded-xl border border-dashed border-zinc-300 bg-zinc-50 px-6 py-16 text-center">
-        <p className="text-lg font-semibold text-zinc-800">No Saturday games</p>
-        <p className="mt-2 text-sm text-zinc-500">
-          No FBS games kick off on Saturday (ET) for Week {data.week},{" "}
-          {data.year}. Try another week.
-        </p>
-      </div>
+      <>
+        <div className="sm:rounded-xl border border-dashed border-zinc-300 bg-zinc-50 px-6 py-16 text-center">
+          <p className="text-lg font-semibold text-zinc-800">No Saturday games</p>
+          <p className="mt-2 text-sm text-zinc-500">
+            No FBS games kick off on Saturday (ET) for Week {data.week},{" "}
+            {data.year}. Try another week.
+          </p>
+        </div>
+        <ScreenshotModal
+          data={visibleData}
+          open={screenshotOpen}
+          onClose={() => onScreenshotOpenChange(false)}
+        />
+      </>
     );
   }
 
   return (
     <div className="space-y-3 sm:px-6 lg:px-8">
-      <div className="flex flex-wrap items-center gap-2 px-4 sm:px-0 sm:gap-3">
-        <label className="hidden cursor-pointer select-none items-center gap-2.5 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-800 shadow-sm transition hover:bg-zinc-50 sm:inline-flex">
+      {/* sm+ only — mobile uses header screenshot + calendar filter controls */}
+      <div className="hidden flex-wrap items-center gap-2 sm:flex sm:gap-3">
+        <label className="inline-flex cursor-pointer select-none items-center gap-2.5 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-800 shadow-sm transition hover:bg-zinc-50">
           <input
             type="checkbox"
             className="h-4 w-4 rounded border-zinc-300 accent-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600/40 focus:ring-offset-1"
@@ -215,7 +231,7 @@ export function ViewingGuideTable({ data }: { data: ViewingGuideData }) {
         </label>
 
         {hasEspnPlus ? (
-          <label className="hidden cursor-pointer select-none items-center gap-2.5 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-800 shadow-sm transition hover:bg-zinc-50 sm:inline-flex">
+          <label className="inline-flex cursor-pointer select-none items-center gap-2.5 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-800 shadow-sm transition hover:bg-zinc-50">
             <input
               type="checkbox"
               className="h-4 w-4 rounded border-zinc-300 accent-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600/40 focus:ring-offset-1"
@@ -249,28 +265,6 @@ export function ViewingGuideTable({ data }: { data: ViewingGuideData }) {
           </svg>
           Save image
         </button> */}
-
-        <button
-          type="button"
-          onClick={() => setScreenshotOpen(true)}
-          className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-emerald-700 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-800 md:hidden"
-        >
-          <svg
-            className="h-4 w-4"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden
-          >
-            <rect x="3" y="3" width="18" height="18" rx="2" />
-            <circle cx="8.5" cy="8.5" r="1.5" />
-            <path d="M21 15l-5-5L5 21" />
-          </svg>
-          Screenshot view
-        </button>
       </div>
 
       {visibleData.networks.length === 0 ? (
@@ -328,7 +322,7 @@ export function ViewingGuideTable({ data }: { data: ViewingGuideData }) {
       <ScreenshotModal
         data={visibleData}
         open={screenshotOpen}
-        onClose={() => setScreenshotOpen(false)}
+        onClose={() => onScreenshotOpenChange(false)}
       />
 
       {exportOpen ? (

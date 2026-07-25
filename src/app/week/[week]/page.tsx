@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { PageWrapper } from "@/components/PageWrapper";
-import { ViewingGuideTable } from "@/components/ViewingGuideTable";
-import { WeekNav } from "@/components/WeekNav";
+import { WeekGuideView } from "@/components/WeekGuideView";
 import { buildViewingGuide, getAvailableWeeks } from "@/lib/cfbd/build-guide";
 import { formatUsageLine, getCfbdUsage } from "@/lib/cfbd/usage";
 import { getDefaultSeasonYear, parseAllowedSeasonYear } from "@/lib/time";
@@ -142,49 +141,6 @@ export default async function WeekPage({ params, searchParams }: PageProps) {
   }
 
   return (
-    <PageWrapper>
-      <div className="mx-auto w-full max-w-[1600px] pt-5 pb-8">
-        <div className="px-4 sm:px-6 lg:px-8">
-          <header className="mb-8">
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <div>
-                <h1 className="text-3xl font-black tracking-tight text-zinc-900 sm:text-4xl">
-                  Week {week}
-                  <span className="ml-2 text-lg font-semibold text-zinc-400 sm:text-xl">
-                    {year} Season
-                  </span>
-                </h1>
-                <p className="mt-1 text-sm text-zinc-500">
-                  {data.saturdayLabel
-                    ? `${data.saturdayLabel}`
-                    : data.weekLabel
-                      ? `${data.weekLabel}`
-                      : ""}
-                </p>
-              </div>
-            </div>
-          </header>
-
-          <div className="mb-6">
-            <WeekNav year={year} week={week} weeks={weeks} />
-          </div>
-        </div>
-
-        <ViewingGuideTable data={data} />
-
-        <footer className="mt-8 px-4 sm:mt-10 sm:border-t sm:border-zinc-200 sm:pt-6 sm:px-6 lg:px-8 text-center text-xs text-zinc-400">
-          Data from{" "}
-          <a
-            href="https://collegefootballdata.com"
-            className="underline underline-offset-2 transition-colors cursor-pointer hover:text-zinc-600"
-            target="_blank"
-            rel="noreferrer"
-          >
-            CollegeFootballData.com
-          </a>
-          .
-        </footer>
-      </div>
-    </PageWrapper>
+    <WeekGuideView data={data} week={week} year={year} weeks={weeks} />
   );
 }
