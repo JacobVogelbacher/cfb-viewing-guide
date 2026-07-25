@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { ImageIcon } from "lucide-react";
+import { useId, useState } from "react";
+import { ImageIcon, Menu, X } from "lucide-react";
 import type { ViewingGuideData } from "@/lib/cfbd/types";
 import { PageWrapper } from "@/components/PageWrapper";
 import { Button } from "@/components/ui/button";
 import { ViewingGuideTable } from "@/components/ViewingGuideTable";
 import { WeekNav } from "@/components/WeekNav";
+import { cn } from "@/lib/utils";
 
 export function WeekGuideView({
   data,
@@ -20,24 +21,55 @@ export function WeekGuideView({
   weeks: number[];
 }) {
   const [screenshotOpen, setScreenshotOpen] = useState(false);
+  /** Mobile week chrome (title + nav); hidden by default. Always visible sm+. */
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const navPanelId = useId();
 
   return (
     <PageWrapper
       headerActions={
-        <Button
-          type="button"
-          variant="outline"
-          size="icon"
-          className="border-zinc-200 bg-white text-zinc-700 shadow-sm hover:bg-zinc-50 sm:hidden"
-          aria-label="Screenshot view"
-          onClick={() => setScreenshotOpen(true)}
-        >
-          <ImageIcon className="size-5" aria-hidden />
-        </Button>
+        <>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            className="border-zinc-200 bg-white text-zinc-700 shadow-sm hover:bg-zinc-50 sm:hidden"
+            aria-label="Screenshot view"
+            onClick={() => setScreenshotOpen(true)}
+          >
+            <ImageIcon className="size-5" aria-hidden />
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            className={cn(
+              "border-zinc-200 bg-white text-zinc-700 shadow-sm hover:bg-zinc-50 sm:hidden",
+              mobileNavOpen &&
+                "border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-50",
+            )}
+            aria-label={mobileNavOpen ? "Hide week navigation" : "Show week navigation"}
+            aria-expanded={mobileNavOpen}
+            aria-controls={navPanelId}
+            onClick={() => setMobileNavOpen((open) => !open)}
+          >
+            {mobileNavOpen ? (
+              <X className="size-5" aria-hidden />
+            ) : (
+              <Menu className="size-5" aria-hidden />
+            )}
+          </Button>
+        </>
       }
     >
-      <div className="mx-auto w-full max-w-[1600px] pt-5 pb-8">
-        <div className="px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-[1600px] pb-8 sm:pt-5">
+        <div
+          id={navPanelId}
+          className={cn(
+            "px-4 sm:px-6 lg:px-8",
+            mobileNavOpen ? "block pt-5" : "hidden sm:block",
+          )}
+        >
           <header className="mb-8">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
