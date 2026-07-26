@@ -5,37 +5,33 @@ import { PageWrapper } from "@/components/PageWrapper";
 import { WeekGuideView } from "@/components/WeekGuideView";
 import { buildViewingGuide, getAvailableWeeks } from "@/lib/cfbd/build-guide";
 import { formatUsageLine, getCfbdUsage } from "@/lib/cfbd/usage";
-import { getDefaultSeasonYear, parseAllowedSeasonYear } from "@/lib/time";
+import { weekPath } from "@/lib/routes";
+import { parseAllowedSeasonYear } from "@/lib/time";
 
 type PageProps = {
-  params: Promise<{ week: string }>;
-  searchParams: Promise<{ year?: string }>;
+  params: Promise<{ year: string; week: string }>;
 };
 
 export async function generateMetadata({
   params,
-  searchParams,
 }: PageProps): Promise<Metadata> {
-  const { week: weekParam } = await params;
-  const { year: yearParam } = await searchParams;
+  const { year: yearParam, week: weekParam } = await params;
   const week = Number(weekParam);
-  const year = parseAllowedSeasonYear(yearParam) ?? getDefaultSeasonYear();
+  const year = parseAllowedSeasonYear(yearParam);
+  if (year == null) {
+    return { title: "Not found · CFB" };
+  }
   return {
     title: `Week ${week} Viewing Guide · ${year} CFB`,
     description: `College football TV schedule for Week ${week} of the ${year} season — network-by-network, time-slot grid.`,
   };
 }
 
-export default async function WeekPage({ params, searchParams }: PageProps) {
-  const { week: weekParam } = await params;
-  const { year: yearParam } = await searchParams;
+export default async function WeekPage({ params }: PageProps) {
+  const { year: yearParam, week: weekParam } = await params;
 
-  // Explicit year outside the allowed window → 404, no CFBD calls.
-  // Missing year → default current/upcoming season.
-  const year =
-    yearParam === undefined || yearParam === ""
-      ? getDefaultSeasonYear()
-      : parseAllowedSeasonYear(yearParam);
+  // Year outside the allowed window (or non-numeric) → 404, no CFBD calls.
+  const year = parseAllowedSeasonYear(yearParam);
   if (year == null) {
     notFound();
   }
@@ -106,9 +102,9 @@ export default async function WeekPage({ params, searchParams }: PageProps) {
   }
 
   const week = Number(weekParam);
-  // Non-existent weeks (e.g. /week/20, conference-champ slots we hide) → week 1.
+  // Non-existent weeks (e.g. /2025/week/20, conference-champ slots we hide) → week 1.
   if (!Number.isInteger(week) || !weeks.includes(week)) {
-    redirect(`/week/${weeks[0]}?year=${year}`);
+    redirect(weekPath(year, weeks[0]));
   }
 
   let data;

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { weekPath } from "@/lib/routes";
 import { getAllowedSeasonYears } from "@/lib/time";
 import { cn } from "@/lib/utils";
 import {
@@ -43,7 +44,7 @@ export function WeekNav({
       <div className="hidden items-center gap-2 sm:flex">
         {prev != null ? (
           <Link
-            href={`/week/${prev}?year=${year}`}
+            href={weekPath(year, prev)}
             className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 shadow-sm transition hover:bg-zinc-50"
           >
             ← Week {prev}
@@ -55,7 +56,7 @@ export function WeekNav({
         )}
         {next != null ? (
           <Link
-            href={`/week/${next}?year=${year}`}
+            href={weekPath(year, next)}
             className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 shadow-sm transition hover:bg-zinc-50"
           >
             Week {next} →
@@ -74,7 +75,7 @@ export function WeekNav({
           return (
             <Link
               key={w}
-              href={`/week/${w}?year=${year}`}
+              href={weekPath(year, w)}
               className={
                 active
                   ? "rounded-md bg-emerald-700 px-2.5 py-1 text-xs font-bold text-white shadow-sm"
@@ -102,7 +103,7 @@ export function WeekNav({
       >
         {prev != null ? (
           <Link
-            href={`/week/${prev}?year=${year}`}
+            href={weekPath(year, prev)}
             className={cn(arrowBtnClass, "sm:hidden")}
             aria-label={`Previous week, Week ${prev}`}
           >
@@ -125,7 +126,7 @@ export function WeekNav({
                 value={week}
                 aria-labelledby="week-label"
                 onChange={(e) => {
-                  router.push(`/week/${e.target.value}?year=${year}`);
+                  router.push(weekPath(year, e.target.value));
                 }}
                 className={nativeSelectClass}
               >
@@ -144,7 +145,7 @@ export function WeekNav({
                 modal={false}
                 onValueChange={(value) => {
                   if (value == null) return;
-                  router.push(`/week/${value}?year=${year}`);
+                  router.push(weekPath(year, value));
                 }}
               >
                 <SelectTrigger
@@ -176,7 +177,7 @@ export function WeekNav({
                 aria-labelledby="year-label"
                 onChange={(e) => {
                   // Always land on week 1 when changing seasons
-                  router.push(`/week/1?year=${e.target.value}`);
+                  router.push(weekPath(e.target.value, 1));
                 }}
                 className={nativeSelectClass}
               >
@@ -196,7 +197,7 @@ export function WeekNav({
                 onValueChange={(value) => {
                   if (value == null) return;
                   // Always land on week 1 when changing seasons
-                  router.push(`/week/1?year=${value}`);
+                  router.push(weekPath(value, 1));
                 }}
               >
                 <SelectTrigger
@@ -220,7 +221,7 @@ export function WeekNav({
 
         {next != null ? (
           <Link
-            href={`/week/${next}?year=${year}`}
+            href={weekPath(year, next)}
             className={cn(arrowBtnClass, "sm:hidden")}
             aria-label={`Next week, Week ${next}`}
           >

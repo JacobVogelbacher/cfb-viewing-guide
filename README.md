@@ -33,10 +33,11 @@ A Next.js college football **TV viewing guide** powered by the [College Football
 
 | Path | Description |
 |------|-------------|
-| `/` | Redirects to the default week for the season |
-| `/week/2` | Week 2 of the default season year |
-| `/week/2?year=2025` | Week 2 of the 2025 season |
-| `/?week=5&year=2024` | Same via home redirect |
+| `/` | Redirects to the default week for the default season |
+| `/2025` | Redirects to week 1 of the 2025 season |
+| `/2025/week` | Same as above |
+| `/2025/week/2` | Week 2 of the 2025 season |
+| `/?week=5&year=2024` | Same via home redirect → `/2024/week/5` |
 
 Default season year: current calendar year from June 1 onward (week 1 of the upcoming season until games start); otherwise the previous year.
 
@@ -83,8 +84,8 @@ Real network responses include `x-calllimit-remaining`. On each **network** call
 ```
 src/
   app/
-    page.tsx              # redirects to /week/[week]
-    week/[week]/page.tsx  # main guide
+    page.tsx                        # redirects to /[year]/week/[week]
+    [year]/week/[week]/page.tsx    # main guide
   components/
     ViewingGuideTable.tsx
     MatchupCard.tsx
@@ -92,5 +93,6 @@ src/
   lib/
     cfbd/                 # API client, cache, usage logging, grid builder
     networks.ts           # outlet normalization / order
+    routes.ts             # path helpers
     time.ts               # ET time buckets
 ```

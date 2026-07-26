@@ -49,8 +49,8 @@ export function isAllowedSeasonYear(
 }
 
 /**
- * Parse a year query param. Returns null if missing/invalid/out of range
- * (callers should not fetch CFBD for null).
+ * Parse a season year path/query segment. Returns null if missing/invalid/out
+ * of range (callers should not fetch CFBD for null).
  */
 export function parseAllowedSeasonYear(
   raw: string | number | null | undefined,

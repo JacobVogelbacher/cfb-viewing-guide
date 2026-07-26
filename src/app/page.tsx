@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { resolveDefaultWeek } from "@/lib/cfbd/build-guide";
+import { weekPath } from "@/lib/routes";
 import {
   getDefaultSeasonYear,
   parseAllowedSeasonYear,
@@ -28,7 +29,5 @@ export default async function HomePage({
       ? await resolveDefaultWeek(year)
       : 1;
 
-  redirect(
-    `/week/${Number.isFinite(week) ? week : 1}?year=${year}`,
-  );
+  redirect(weekPath(year, Number.isFinite(week) ? week : 1));
 }
