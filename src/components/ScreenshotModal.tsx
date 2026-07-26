@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { XIcon } from "lucide-react";
+
 import type { ViewingGuideData } from "@/lib/cfbd/types";
 import { expandNetworkLanes } from "@/lib/cfbd/expand-rows";
 import { CalendarGrid } from "./CalendarGrid";
@@ -79,16 +81,13 @@ export function ScreenshotModal({
       <div className="flex shrink-0 items-center justify-between gap-3 border-b border-zinc-800 bg-zinc-900 px-3 py-2 text-white">
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold">{data.saturdayLabel}</p>
-          <p className="text-[11px] text-zinc-400">
-            Take a full-page screenshot
-          </p>
         </div>
         <button
           type="button"
           onClick={onClose}
-          className="shrink-0 rounded-lg bg-white px-3 py-1.5 text-sm font-semibold text-zinc-900 shadow-sm cursor-pointer transition hover:bg-zinc-100"
+          className="text-black shrink-0 rounded-lg border bg-white"
         >
-          Close
+          <XIcon />
         </button>
       </div>
 
@@ -103,7 +102,7 @@ export function ScreenshotModal({
         {stageWidth > 0 ? (
           <div className="bg-white text-zinc-900" style={{ width: stageWidth }}>
             <header className="flex justify-between items-center border-b border-zinc-200 px-3 py-2.5 sm:px-4 sm:py-3">
-              <Logo />
+              <Logo size="sm" />
 
               <p className="truncate text-sm font-semibold">
                 Week {data.week} &bull; {data.year}
