@@ -243,8 +243,7 @@ async function buildViewingGuideUncached(options: {
     (c) => c.week === week && c.seasonType === seasonType,
   );
 
-  const sampleStart =
-    viewingGames.find((g) => g.startTime)?.startTime ?? null;
+  const sampleStart = viewingGames.find((g) => g.startTime)?.startTime ?? null;
 
   return {
     year,
@@ -276,7 +275,7 @@ export async function buildViewingGuide(options: {
   return unstable_cache(
     () => buildViewingGuideUncached({ year, week, seasonType }),
     [
-      "viewing-guide-v5-secn-plus-espn-plus",
+      "viewing-guide-v6-cbs-sports-new-logo",
       String(year),
       String(week),
       seasonType,
