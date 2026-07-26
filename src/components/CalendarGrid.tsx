@@ -132,12 +132,6 @@ export function CalendarGrid({
     : baseLogoSize;
   const headerHeight = screenshotLayout ? baseHeaderHeight : baseHeaderHeight;
 
-  let networkGroupIndex = -1;
-  const groupIndexByRow = lanes.map((lane) => {
-    if (lane.isFirstLane) networkGroupIndex += 1;
-    return networkGroupIndex;
-  });
-
   const headerFontPx = Math.max(7, Math.round(11 * scale));
   const networkFontPx = Math.max(7, Math.round(11 * scale));
   const networkBadgeMinH = Math.max(14, Math.round(32 * scale));
@@ -154,7 +148,7 @@ export function CalendarGrid({
         backgroundColor: "#ffffff",
       }}
     >
-      {/* Header — same off-white as even body rows (bg-zinc-50 / #fafafa) */}
+      {/* Header */}
       <div
         className="sticky top-0 left-0 z-30 flex border-b border-zinc-300 bg-zinc-50 text-zinc-800"
         style={{
@@ -209,12 +203,9 @@ export function CalendarGrid({
         </div>
       </div>
 
-      {/* Body */}
-      {lanes.map((lane, rowIndex) => {
+      {/* Body — solid white rows (no zebra striping) */}
+      {lanes.map((lane) => {
         const accent = NETWORK_COLORS[lane.network] ?? "#3f3f46";
-        const groupIndex = groupIndexByRow[rowIndex];
-        const stickyBg = groupIndex % 2 === 0 ? "#ffffff" : "#fafafa";
-        const rowBg = groupIndex % 2 === 0 ? "bg-white" : "bg-zinc-50";
         const showNetworkLabel = lane.isFirstLane;
         // Multi-lane networks: no bottom border until the last lane, so stacked
         // rows read as one network cell.
@@ -234,20 +225,19 @@ export function CalendarGrid({
         return (
           <div
             key={`${lane.network}-lane-${lane.laneIndex}`}
-            className={`flex ${rowBg}`}
+            className="flex bg-white"
             style={{
               width: fitWidth ? "100%" : tableWidth,
               height: effectiveRowHeight,
             }}
           >
             <div
-              className={`${networkColPosition} left-0 z-10 flex shrink-0 items-center justify-center border-r border-zinc-200 px-1 ${
+              className={`${networkColPosition} left-0 z-10 flex shrink-0 items-center justify-center border-r border-zinc-200 bg-white px-1 ${
                 isLastLaneOfNetwork ? "border-b border-zinc-200" : ""
               }`}
               style={{
                 width: networkCol,
                 minWidth: networkCol,
-                backgroundColor: stickyBg,
               }}
             >
               {showNetworkLabel ? (
