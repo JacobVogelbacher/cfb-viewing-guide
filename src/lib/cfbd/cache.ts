@@ -16,6 +16,7 @@ export type CacheTier =
   | "calendar"
   | "schedule"
   | "scheduleHistorical"
+  | "scheduleHorizonFar"
   | "schedulePastSeason";
 
 /** TTLs tuned for free-tier (1k calls/month). */
@@ -24,10 +25,15 @@ export const CFBD_CACHE_TTL_SECONDS: Record<CacheTier, number> = {
   teams: 7 * 24 * 60 * 60, // 7 days
   /** Season week boundaries are stable */
   calendar: 24 * 60 * 60, // 24 hours
-  /** TV windows / kickoffs for current or upcoming weeks */
+  /** TV windows / kickoffs for current or near-term weeks */
   schedule: 6 * 60 * 60, // 6 hours
-  /** Completed weeks still within the current season */
+  /**
+   * Completed weeks in the current season, or upcoming weeks 4–5 weeks out
+   * (TV slate still sparse; no need to refresh often).
+   */
   scheduleHistorical: 7 * 24 * 60 * 60, // 7 days
+  /** Upcoming weeks 6+ weeks out — almost nothing useful changes yet */
+  scheduleHorizonFar: 14 * 24 * 60 * 60, // 14 days
   /** Prior seasons — schedules are effectively frozen */
   schedulePastSeason: 30 * 24 * 60 * 60, // 30 days
 };
@@ -117,10 +123,12 @@ export function memoryCacheStats(): { size: number; keys: string[] } {
 }
 
 /**
- * Pick schedule TTL by how "done" the data is:
+ * Pick schedule TTL by how "done" / far away the data is:
  * - Prior seasons → 30 days (frozen)
  * - Completed weeks in the current season → 7 days
- * - Current / upcoming weeks → 6 hours (TV windows still shift)
+ * - Upcoming weeks 6+ weeks out → 14 days
+ * - Upcoming weeks 4–5 weeks out → 7 days
+ * - Current / near-term weeks → 6 hours (TV windows still shift)
  */
 export function scheduleCacheTier(
   year: number,
@@ -138,27 +146,46 @@ export function scheduleCacheTier(
     return "schedulePastSeason";
   }
 
-  // Within the current season: older weeks get the 7-day historical tier.
-  // Approximate: regular season runs Aug–Dec; week 1 starts late Aug.
+  // Within the current season. Approximate calendar is fine for cache tiers only.
   if (week != null) {
     const approxWeekEnd = approximateWeekEnd(year, week);
-    if (approxWeekEnd && now.getTime() - approxWeekEnd.getTime() > 2 * 24 * 60 * 60 * 1000) {
+    if (
+      approxWeekEnd &&
+      now.getTime() - approxWeekEnd.getTime() > 2 * 24 * 60 * 60 * 1000
+    ) {
       return "scheduleHistorical";
+    }
+
+    const approxWeekStart = approximateWeekStart(year, week);
+    if (approxWeekStart && approxWeekStart.getTime() > now.getTime()) {
+      const msUntilStart = approxWeekStart.getTime() - now.getTime();
+      const weeksUntilStart = msUntilStart / (7 * 24 * 60 * 60 * 1000);
+      if (weeksUntilStart >= 6) return "scheduleHorizonFar";
+      if (weeksUntilStart >= 4) return "scheduleHistorical";
     }
   }
 
   return "schedule";
 }
 
-function approximateWeekEnd(year: number, week: number): Date | null {
+/** Saturday kickoff weekend for week N (coarse; cache tier only). */
+function approximateWeekStart(year: number, week: number): Date | null {
   if (!Number.isFinite(week) || week < 0) return null;
-  // Labor Day Monday ~ first Monday of September; week 1 often the weekend before/after.
-  // Coarse estimate is fine for cache tier only.
   const laborDay = firstMondayOfSeptember(year);
   const saturdayOfWeek1 = new Date(laborDay);
   saturdayOfWeek1.setDate(laborDay.getDate() - 2); // Saturday before Labor Day
-  const end = new Date(saturdayOfWeek1);
-  end.setDate(saturdayOfWeek1.getDate() + (week - 1) * 7 + 1); // Sunday
+  const start = new Date(saturdayOfWeek1);
+  start.setDate(saturdayOfWeek1.getDate() + (week - 1) * 7);
+  start.setHours(0, 0, 0, 0);
+  return start;
+}
+
+function approximateWeekEnd(year: number, week: number): Date | null {
+  const start = approximateWeekStart(year, week);
+  if (!start) return null;
+  // Sunday after that Saturday.
+  const end = new Date(start);
+  end.setDate(start.getDate() + 1);
   end.setHours(23, 59, 59, 999);
   return end;
 }

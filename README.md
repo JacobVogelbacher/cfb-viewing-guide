@@ -62,8 +62,9 @@ CFBD free tier is tight (~1k calls/month). This app is designed to almost never 
 |----------|-----|
 | `/teams` | 7 days |
 | `/calendar` | 24 hours |
-| `/games`, `/games/media` (current/upcoming week) | 6 hours |
-| `/games`, `/games/media` (completed weeks, current season) | 7 days |
+| `/games`, `/games/media` (current / near-term week) | 6 hours |
+| `/games`, `/games/media` (4–5 weeks out, or completed weeks this season) | 7 days |
+| `/games`, `/games/media` (6+ weeks out) | 14 days |
 | `/games`, `/games/media` (prior seasons) | 30 days |
 
 **Practical cost:** first visit to a week ≈ 2–4 network calls; revisiting the same week (and shared teams/calendar) is served from cache. Browsing many weeks mostly spends quota on `/games` + `/games/media` only.
