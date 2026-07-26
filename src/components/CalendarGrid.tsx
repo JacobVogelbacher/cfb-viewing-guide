@@ -31,6 +31,11 @@ function NetworkLabel({
   networkBadgeMinW,
   cellPadY,
   logoDensity = "default",
+  /**
+   * Screenshot rows are tall; landscape wordmarks need a wider box so
+   * object-contain can grow them to match near-square marks optically.
+   */
+  screenshotLayout = false,
 }: {
   network: string;
   displayName: string;
@@ -41,13 +46,20 @@ function NetworkLabel({
   networkBadgeMinW: number;
   cellPadY: number;
   logoDensity?: NetworkLogoDensity;
+  screenshotLayout?: boolean;
 }) {
   const logo = getNetworkLogo(network);
   if (logo) {
     const boxScale = logo.boxScale ?? 1;
+    // boxScale > 1 marks near-square badges (ABC, CBS, …); leave those alone.
+    const isLandscape = boxScale <= 1;
     const { baseH, baseW, minH, minW } = NETWORK_LOGO_BOX[logoDensity];
+    const widthBoost = screenshotLayout && isLandscape ? 1.55 : 1;
     const logoH = Math.max(minH, Math.round(baseH * scale * boxScale));
-    const logoW = Math.max(minW, Math.round(baseW * scale * boxScale));
+    const logoW = Math.max(
+      minW,
+      Math.round(baseW * scale * boxScale * widthBoost),
+    );
     return (
       // eslint-disable-next-line @next/next/no-img-element -- local static SVG from /public
       <img
@@ -116,16 +128,23 @@ export function CalendarGrid({
   const timelineMinutes = data.timelineMinutes;
   const {
     timeCol,
-    networkCol,
+    networkCol: baseNetworkCol,
     rowHeight: baseRowHeight,
     headerHeight: baseHeaderHeight,
     logoSize: baseLogoSize,
-    tableWidth,
+    tableWidth: baseTableWidth,
     timelineWidth,
     scale,
   } = layout;
 
   // Screenshot mode: taller rows + larger team marks (vertical space is free).
+  // Wider network column so landscape wordmarks can use the extra logo width.
+  const networkCol = screenshotLayout
+    ? Math.round(baseNetworkCol * 1.4)
+    : baseNetworkCol;
+  const tableWidth = screenshotLayout
+    ? networkCol + timelineWidth
+    : baseTableWidth;
   const rowHeight = screenshotLayout ? baseRowHeight * 2 : baseRowHeight;
   const logoSize = screenshotLayout
     ? Math.max(baseLogoSize * 1.55, baseLogoSize + 15)
@@ -251,6 +270,7 @@ export function CalendarGrid({
                   networkBadgeMinW={networkBadgeMinW}
                   cellPadY={cellPadY}
                   logoDensity={networkLogoDensity}
+                  screenshotLayout={screenshotLayout}
                 />
               ) : (
                 <span className="sr-only">
