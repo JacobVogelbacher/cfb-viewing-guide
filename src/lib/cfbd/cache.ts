@@ -11,7 +11,12 @@
 
 import { getDefaultSeasonYear } from "@/lib/time";
 
-export type CacheTier = "teams" | "calendar" | "schedule" | "scheduleHistorical";
+export type CacheTier =
+  | "teams"
+  | "calendar"
+  | "schedule"
+  | "scheduleHistorical"
+  | "schedulePastSeason";
 
 /** TTLs tuned for free-tier (1k calls/month). */
 export const CFBD_CACHE_TTL_SECONDS: Record<CacheTier, number> = {
@@ -21,8 +26,10 @@ export const CFBD_CACHE_TTL_SECONDS: Record<CacheTier, number> = {
   calendar: 24 * 60 * 60, // 24 hours
   /** TV windows / kickoffs for current or upcoming weeks */
   schedule: 6 * 60 * 60, // 6 hours
-  /** Completed past weeks are effectively static */
+  /** Completed weeks still within the current season */
   scheduleHistorical: 7 * 24 * 60 * 60, // 7 days
+  /** Prior seasons — schedules are effectively frozen */
+  schedulePastSeason: 30 * 24 * 60 * 60, // 30 days
 };
 
 type Entry = {
@@ -110,8 +117,10 @@ export function memoryCacheStats(): { size: number; keys: string[] } {
 }
 
 /**
- * Prefer long TTL for seasons/weeks that are clearly in the past.
- * Current season week = shorter TTL so late TV announcements still refresh.
+ * Pick schedule TTL by how "done" the data is:
+ * - Prior seasons → 30 days (frozen)
+ * - Completed weeks in the current season → 7 days
+ * - Current / upcoming weeks → 6 hours (TV windows still shift)
  */
 export function scheduleCacheTier(
   year: number,
@@ -120,16 +129,16 @@ export function scheduleCacheTier(
 ): CacheTier {
   const seasonYear = getDefaultSeasonYear(now);
 
-  if (year < seasonYear) return "scheduleHistorical";
+  if (year < seasonYear) return "schedulePastSeason";
   if (year > seasonYear) return "schedule";
 
-  // Rough CFB calendar: week N often ends ~Sunday of that weekend.
-  // If we're well past mid-January of the following year, treat as historical.
+  // Season fully over (calendar year after the season, from February on) →
+  // treat as past season even while default season year hasn't rolled yet.
   if (now.getFullYear() > year && now.getMonth() >= 1) {
-    return "scheduleHistorical";
+    return "schedulePastSeason";
   }
 
-  // Within the season: older weeks get longer cache.
+  // Within the current season: older weeks get the 7-day historical tier.
   // Approximate: regular season runs Aug–Dec; week 1 starts late Aug.
   if (week != null) {
     const approxWeekEnd = approximateWeekEnd(year, week);
