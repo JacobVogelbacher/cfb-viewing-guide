@@ -33,6 +33,7 @@ export function WeekGuideView({
             type="button"
             variant="outline"
             size="icon"
+            className="sm:hidden"
             aria-label="Screenshot view"
             onClick={() => setScreenshotOpen(true)}
           >

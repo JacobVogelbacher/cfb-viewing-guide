@@ -1,14 +1,22 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { getAllowedSeasonYears } from "@/lib/time";
 import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const arrowBtnClass =
-  "inline-flex size-7.5 shrink-0 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-700 shadow-sm transition hover:bg-zinc-50";
+  "inline-flex size-7 shrink-0 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-700 transition hover:bg-zinc-50";
 const arrowBtnDisabledClass =
-  "inline-flex size-7.5 shrink-0 items-center justify-center rounded-lg border border-transparent text-zinc-300";
+  "inline-flex size-7 shrink-0 items-center justify-center rounded-lg border border-transparent text-zinc-300";
 
 export function WeekNav({
   year,
@@ -19,6 +27,7 @@ export function WeekNav({
   week: number;
   weeks: number[];
 }) {
+  const router = useRouter();
   const prev = weeks.filter((w) => w < week).at(-1);
   const next = weeks.find((w) => w > week);
   const seasonYears = getAllowedSeasonYears();
@@ -104,50 +113,72 @@ export function WeekNav({
         )}
 
         <div className="flex min-w-0 flex-1 flex-wrap items-center justify-center gap-3 sm:flex-initial sm:justify-start lg:contents">
-          <form
-            action="/week"
-            method="get"
-            className="flex items-center gap-2 lg:hidden"
-          >
-            <label htmlFor="week" className="text-xs font-medium text-zinc-500">
+          <div className="flex items-center gap-2 lg:hidden">
+            <label
+              htmlFor="week-select"
+              className="text-xs font-medium text-zinc-500"
+            >
               Week
             </label>
-            <input type="hidden" name="year" value={year} />
-            <select
-              id="week"
-              name="week"
-              defaultValue={week}
-              onChange={(e) => e.currentTarget.form?.requestSubmit()}
-              className="rounded-md border border-zinc-200 bg-white px-2 py-1 text-sm tabular-nums shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+            <Select
+              value={week}
+              modal={false}
+              onValueChange={(value) => {
+                if (value == null) return;
+                router.push(`/week/${value}?year=${year}`);
+              }}
             >
-              {weeks.map((w) => (
-                <option key={w} value={w}>
-                  {w}
-                </option>
-              ))}
-            </select>
-          </form>
+              <SelectTrigger
+                id="week-select"
+                size="sm"
+                className="min-w-16 tabular-nums"
+                aria-label="Select week"
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent alignItemWithTrigger={false}>
+                {weeks.map((w) => (
+                  <SelectItem key={w} value={w}>
+                    {w}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-          <form action="/week" method="get" className="flex items-center gap-2">
-            <label htmlFor="year" className="text-xs font-medium text-zinc-500">
+          <div className="flex items-center gap-2">
+            <label
+              htmlFor="year-select"
+              className="text-xs font-medium text-zinc-500"
+            >
               Season
             </label>
-            {/* Always land on week 1 when changing seasons */}
-            <input type="hidden" name="week" value={1} />
-            <select
-              id="year"
-              name="year"
-              defaultValue={year}
-              onChange={(e) => e.currentTarget.form?.requestSubmit()}
-              className="rounded-md border border-zinc-200 bg-white px-2 py-1 text-sm tabular-nums shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+            <Select
+              value={year}
+              modal={false}
+              onValueChange={(value) => {
+                if (value == null) return;
+                // Always land on week 1 when changing seasons
+                router.push(`/week/1?year=${value}`);
+              }}
             >
-              {seasonYears.map((y) => (
-                <option key={y} value={y}>
-                  {y}
-                </option>
-              ))}
-            </select>
-          </form>
+              <SelectTrigger
+                id="year-select"
+                size="sm"
+                className="min-w-20 tabular-nums"
+                aria-label="Select season"
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent alignItemWithTrigger={false}>
+                {seasonYears.map((y) => (
+                  <SelectItem key={y} value={y}>
+                    {y}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {next != null ? (
