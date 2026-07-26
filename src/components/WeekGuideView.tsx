@@ -33,18 +33,17 @@ export function WeekGuideView({
             type="button"
             variant="outline"
             size="icon"
-            className="border-zinc-200 bg-white text-zinc-700 shadow-sm hover:bg-zinc-50 sm:hidden"
             aria-label="Screenshot view"
             onClick={() => setScreenshotOpen(true)}
           >
-            <ImageIcon className="size-5" aria-hidden />
+            <ImageIcon className="size-6" aria-hidden />
           </Button>
           <Button
             type="button"
             variant="outline"
             size="icon"
             className={cn(
-              "border-zinc-200 bg-white text-zinc-700 shadow-sm hover:bg-zinc-50 sm:hidden",
+              "sm:hidden",
               mobileNavOpen &&
                 "border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-50",
             )}
@@ -56,9 +55,9 @@ export function WeekGuideView({
             onClick={() => setMobileNavOpen((open) => !open)}
           >
             {mobileNavOpen ? (
-              <X className="size-5" aria-hidden />
+              <X className="size-6" aria-hidden />
             ) : (
-              <Menu className="size-5" aria-hidden />
+              <Menu className="size-6" aria-hidden />
             )}
           </Button>
         </>

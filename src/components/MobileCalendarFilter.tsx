@@ -26,11 +26,11 @@ export function MobileCalendarFilter({
         <PopoverTrigger
           render={
             <Button
-              variant="outline"
+              variant="ghost"
               size="icon-sm"
               aria-label="Filters"
               className={cn(
-                "border-zinc-200 bg-white text-zinc-700 shadow-sm hover:bg-zinc-50",
+                "border-zinc-200 text-zinc-700 hover:bg-zinc-50",
                 (open || hideEspnPlus) &&
                   "border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-50",
               )}
