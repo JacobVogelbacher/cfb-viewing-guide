@@ -6,6 +6,7 @@ import {
   formatSaturdayLabel,
   formatWeekRange,
   GAME_DURATION_MINUTES,
+  getDefaultSeasonYear,
   pickPrimarySaturdayDate,
   resolveTimelineStartHour,
   saturdayMinutesFromMidnight,
@@ -343,6 +344,16 @@ export async function resolveDefaultWeek(year: number): Promise<number> {
   } catch {
     return 1;
   }
+}
+
+/**
+ * Week to land on for /{year} and /{year}/week:
+ * current season → in-progress / next week; other seasons → week 1.
+ */
+export async function resolveLandingWeek(year: number): Promise<number> {
+  if (year !== getDefaultSeasonYear()) return 1;
+  if (!process.env.CFBD_API_KEY) return 1;
+  return resolveDefaultWeek(year);
 }
 
 export async function getAvailableWeeks(year: number): Promise<number[]> {

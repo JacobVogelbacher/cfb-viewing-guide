@@ -34,7 +34,7 @@ A Next.js college football **TV viewing guide** powered by the [College Football
 | Path | Description |
 |------|-------------|
 | `/` | Redirects to the default week for the default season |
-| `/2025` | Redirects to week 1 of the 2025 season |
+| `/2025` | Current week if 2025 is the live season; otherwise week 1 |
 | `/2025/week` | Same as above |
 | `/2025/week/2` | Week 2 of the 2025 season |
 | `/?week=5&year=2024` | Same via home redirect → `/2024/week/5` |
