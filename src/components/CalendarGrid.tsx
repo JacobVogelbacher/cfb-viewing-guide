@@ -51,14 +51,21 @@ function NetworkLabel({
   const logo = getNetworkLogo(network);
   if (logo) {
     const boxScale = logo.boxScale ?? 1;
-    // boxScale > 1 marks near-square badges (ABC, CBS, …); leave those alone.
-    const isLandscape = boxScale <= 1;
+    // boxScale > 1 = near-square badges (ABC, CBS, ESPNU, …).
+    const isSquare = boxScale > 1;
+    const isLandscape = !isSquare;
     const { baseH, baseW, minH, minW } = NETWORK_LOGO_BOX[logoDensity];
+    // Screenshot: widen landscape wordmarks so they match square optical size.
     const widthBoost = screenshotLayout && isLandscape ? 1.55 : 1;
-    const logoH = Math.max(minH, Math.round(baseH * scale * boxScale));
+    // Mobile main view: square marks under-fill the wide short box — bump them
+    // (desktop already looks fine; screenshot has its own roomier layout).
+    const squareBoost =
+      !screenshotLayout && isSquare && logoDensity === "mobile" ? 1.45 : 1;
+    const sizeScale = boxScale * squareBoost;
+    const logoH = Math.max(minH, Math.round(baseH * scale * sizeScale));
     const logoW = Math.max(
       minW,
-      Math.round(baseW * scale * boxScale * widthBoost),
+      Math.round(baseW * scale * sizeScale * widthBoost),
     );
     return (
       // eslint-disable-next-line @next/next/no-img-element -- local static SVG from /public
