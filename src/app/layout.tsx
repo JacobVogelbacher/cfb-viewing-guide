@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -12,13 +12,56 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteName = "CFB Viewing Guide";
+const siteDescription =
+  "College football TV viewing guide — games by network and kickoff time, week by week.";
+
 export const metadata: Metadata = {
+  // Absolute URLs for OG/Twitter when NEXT_PUBLIC_SITE_URL is set (e.g. production).
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  ),
   title: {
-    default: "CFB Viewing Guide",
-    template: "%s · CFB Viewing Guide",
+    default: siteName,
+    template: `%s · ${siteName}`,
   },
-  description:
-    "College football TV viewing guide — games by network and kickoff time, powered by College Football Data API.",
+  description: siteDescription,
+  applicationName: siteName,
+  keywords: [
+    "college football",
+    "CFB",
+    "TV schedule",
+    "TV guide",
+    "viewing guide",
+    "kickoff times",
+  ],
+  authors: [{ name: siteName }],
+  creator: siteName,
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    siteName,
+    title: siteName,
+    description: siteDescription,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteName,
+    description: siteDescription,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  category: "sports",
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#047857" },
+    { media: "(prefers-color-scheme: dark)", color: "#047857" },
+  ],
+  colorScheme: "light",
 };
 
 export default function RootLayout({

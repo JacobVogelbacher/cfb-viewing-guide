@@ -19,11 +19,16 @@ export async function generateMetadata({
   const week = Number(weekParam);
   const year = parseAllowedSeasonYear(yearParam);
   if (year == null) {
-    return { title: "Not found · CFB" };
+    return { title: "Not found" };
   }
   return {
-    title: `Week ${week} Viewing Guide · ${year} CFB`,
-    description: `College football TV schedule for Week ${week} of the ${year} season — network-by-network, time-slot grid.`,
+    // Root layout template appends "· CFB Viewing Guide"
+    title: `Week ${week} · ${year}`,
+    description: `College football TV schedule for Week ${week} of the ${year} season — network-by-network.`,
+    openGraph: {
+      title: `Week ${week} · ${year} · CFB Viewing Guide`,
+      description: `College football TV schedule for Week ${week} of the ${year} season — network-by-network.`,
+    },
   };
 }
 
@@ -136,7 +141,5 @@ export default async function WeekPage({ params }: PageProps) {
     );
   }
 
-  return (
-    <WeekGuideView data={data} week={week} year={year} weeks={weeks} />
-  );
+  return <WeekGuideView data={data} week={week} year={year} weeks={weeks} />;
 }
