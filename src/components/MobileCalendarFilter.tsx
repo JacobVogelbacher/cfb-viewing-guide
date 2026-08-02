@@ -21,7 +21,7 @@ export function MobileCalendarFilter({
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="sm:hidden">
+    <div>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger
           render={
@@ -30,9 +30,9 @@ export function MobileCalendarFilter({
               size="icon-sm"
               aria-label="Filters"
               className={cn(
-                "border-zinc-200 text-zinc-700 hover:bg-zinc-50",
+                "cursor-pointer border-zinc-200 text-zinc-700 hover:border-zinc-300 hover:bg-zinc-100 hover:text-zinc-900",
                 (open || hideEspnPlus) &&
-                  "border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-50",
+                  "border-emerald-300 bg-emerald-50 text-emerald-800 hover:border-emerald-400 hover:bg-emerald-100 hover:text-emerald-900",
               )}
             />
           }

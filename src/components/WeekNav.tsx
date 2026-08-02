@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
@@ -19,16 +20,19 @@ const arrowBtnClass =
 const arrowBtnDisabledClass =
   "inline-flex size-7 shrink-0 items-center justify-center rounded-lg border border-transparent text-zinc-300";
 const nativeSelectClass =
-  "h-7 w-full appearance-none rounded-[min(var(--radius-md),10px)] border border-input bg-white py-0 pl-2.5 pr-7 text-sm font-medium tabular-nums outline-none";
+  "h-7 w-full cursor-pointer appearance-none rounded-[min(var(--radius-md),10px)] border border-input bg-white py-0 pl-2.5 pr-7 text-sm font-medium tabular-nums outline-none";
 
 export function WeekNav({
   year,
   week,
   weeks,
+  actions,
 }: {
   year: number;
   week: number;
   weeks: number[];
+  /** Desktop/tablet controls (e.g. Fit to Screen) — left of week/season. */
+  actions?: ReactNode;
 }) {
   const router = useRouter();
   const prev = weeks.filter((w) => w < week).at(-1);
@@ -40,37 +44,16 @@ export function WeekNav({
       className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
       aria-label="Week navigation"
     >
-      {/* Prev / next with labels — tablet & desktop only */}
-      <div className="hidden items-center gap-2 sm:flex">
-        {prev != null ? (
-          <Link
-            href={weekPath(year, prev)}
-            className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 shadow-sm transition hover:bg-zinc-50"
-          >
-            ← Week {prev}
-          </Link>
-        ) : (
-          <span className="rounded-lg border border-transparent px-3 py-1.5 text-sm text-zinc-300">
-            ← Week
-          </span>
-        )}
-        {next != null ? (
-          <Link
-            href={weekPath(year, next)}
-            className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 shadow-sm transition hover:bg-zinc-50"
-          >
-            Week {next} →
-          </Link>
-        ) : (
-          <span className="rounded-lg border border-transparent px-3 py-1.5 text-sm text-zinc-300">
-            Week →
-          </span>
-        )}
-      </div>
+      {/* Fit / filter toggles — tablet & desktop only (prev/next live on mobile). */}
+      {actions ? (
+        <div className="hidden flex-wrap items-center gap-2 sm:flex sm:gap-3">
+          {actions}
+        </div>
+      ) : null}
 
       {/*
         Mobile: [←] Week · Season [→]
-        sm+: Week · Season (labeled prev/next above)
+        sm+: Week · Season only (no prev/next)
       */}
       <div
         className={cn(

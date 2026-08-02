@@ -18,8 +18,6 @@ import { MobileCalendarFilter } from "./MobileCalendarFilter";
 import { ScreenshotModal } from "./ScreenshotModal";
 import { cn } from "@/lib/utils";
 
-const PREF_FIT_TO_SCREEN = "cfb-guide:fitToScreen";
-const PREF_HIDE_ESPN_PLUS = "cfb-guide:hideEspnPlus";
 /** Tailwind `sm` (640px): Fit to Screen is desktop-only below this width. */
 const MOBILE_MAX_WIDTH_MQ = "(max-width: 639px)";
 /**
@@ -40,25 +38,6 @@ const MOBILE_TIME_COL_SCALE = 0.86;
  */
 const TABLET_FIT_MAX_CONTAINER_PX = 1100;
 
-function readSessionBool(key: string): boolean | null {
-  try {
-    const raw = sessionStorage.getItem(key);
-    if (raw === "true") return true;
-    if (raw === "false") return false;
-  } catch {
-    // sessionStorage unavailable (private mode, SSR, etc.)
-  }
-  return null;
-}
-
-function writeSessionBool(key: string, value: boolean) {
-  try {
-    sessionStorage.setItem(key, value ? "true" : "false");
-  } catch {
-    // ignore quota / access errors
-  }
-}
-
 function naturalLayout(hourCount: number) {
   return layoutFromScale(hourCount, 1);
 }
@@ -67,15 +46,18 @@ export function ViewingGuideTable({
   data,
   screenshotOpen,
   onScreenshotOpenChange,
+  fitToScreen,
+  hideEspnPlus,
+  onHideEspnPlusChange,
 }: {
   data: ViewingGuideData;
   /** Controlled by page header action (mobile Screenshot view). */
   screenshotOpen: boolean;
   onScreenshotOpenChange: (open: boolean) => void;
+  fitToScreen: boolean;
+  hideEspnPlus: boolean;
+  onHideEspnPlusChange: (value: boolean) => void;
 }) {
-  const [fitToScreen, setFitToScreen] = useState(false);
-  const [hideEspnPlus, setHideEspnPlus] = useState(false);
-  const [prefsHydrated, setPrefsHydrated] = useState(false);
   /** True below Tailwind `sm`; Fit to Screen is ignored while true. */
   const [isMobile, setIsMobile] = useState(false);
   /** True below Tailwind `lg` (includes phone + tablet). */
@@ -83,22 +65,6 @@ export function ViewingGuideTable({
   const [exportOpen, setExportOpen] = useState(false);
   const [containerWidth, setContainerWidth] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  // Restore UI prefs from sessionStorage after mount (avoid SSR mismatch).
-  useEffect(() => {
-    const fit = readSessionBool(PREF_FIT_TO_SCREEN);
-    const hide = readSessionBool(PREF_HIDE_ESPN_PLUS);
-    if (fit !== null) setFitToScreen(fit);
-    if (hide !== null) setHideEspnPlus(hide);
-    setPrefsHydrated(true);
-  }, []);
-
-  // Persist when the user toggles (skip the initial default false,false write).
-  useEffect(() => {
-    if (!prefsHydrated) return;
-    writeSessionBool(PREF_FIT_TO_SCREEN, fitToScreen);
-    writeSessionBool(PREF_HIDE_ESPN_PLUS, hideEspnPlus);
-  }, [fitToScreen, hideEspnPlus, prefsHydrated]);
 
   useEffect(() => {
     const mobileMq = window.matchMedia(MOBILE_MAX_WIDTH_MQ);
@@ -212,10 +178,22 @@ export function ViewingGuideTable({
     networkLogoDensity,
   ]);
 
+  // Mobile only: filter popover in the network header corner.
+  // Desktop/tablet use the inline nav toggles instead.
+  const filterControl =
+    isMobile && hasEspnPlus ? (
+      <MobileCalendarFilter
+        hideEspnPlus={hideEspnPlus}
+        onHideEspnPlusChange={onHideEspnPlusChange}
+      />
+    ) : (
+      <span className="sr-only">Network</span>
+    );
+
   if (data.networks.length === 0 || data.hourColumns.length === 0) {
     return (
-      <>
-        <div className="sm:rounded-xl border border-dashed border-zinc-300 bg-zinc-50 px-6 py-16 text-center">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <div className="flex min-h-0 flex-1 flex-col items-center justify-center border border-dashed border-zinc-300 bg-zinc-50 px-6 py-16 text-center">
           <p className="text-lg font-semibold text-zinc-800">No Saturday games</p>
           <p className="mt-2 text-sm text-zinc-500">
             No FBS games kick off on Saturday (ET) for Week {data.week},{" "}
@@ -227,63 +205,14 @@ export function ViewingGuideTable({
           open={screenshotOpen}
           onClose={() => onScreenshotOpenChange(false)}
         />
-      </>
+      </div>
     );
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col space-y-3 max-sm:overflow-hidden sm:px-6 lg:px-8">
-      {/* sm+ only — mobile uses header screenshot + calendar filter controls */}
-      <div className="hidden shrink-0 flex-wrap items-center gap-2 sm:flex sm:gap-3">
-        <label className="inline-flex cursor-pointer select-none items-center gap-2.5 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-800 shadow-sm transition hover:bg-zinc-50">
-          <input
-            type="checkbox"
-            className="h-4 w-4 rounded border-zinc-300 accent-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600/40 focus:ring-offset-1"
-            checked={fitToScreen}
-            onChange={(e) => setFitToScreen(e.target.checked)}
-          />
-          <span>Fit to Screen</span>
-        </label>
-
-        {hasEspnPlus ? (
-          <label className="inline-flex cursor-pointer select-none items-center gap-2.5 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-800 shadow-sm transition hover:bg-zinc-50">
-            <input
-              type="checkbox"
-              className="h-4 w-4 rounded border-zinc-300 accent-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600/40 focus:ring-offset-1"
-              checked={hideEspnPlus}
-              onChange={(e) => setHideEspnPlus(e.target.checked)}
-            />
-            <span>Hide ESPN+</span>
-          </label>
-        ) : null}
-
-        {/* // ! Hiding this for now since the team logos were showing up blank on prod */}
-        {/* <button
-          type="button"
-          onClick={() => setExportOpen(true)}
-          disabled={visibleData.networks.length === 0}
-          className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-semibold text-zinc-800 shadow-sm transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <svg
-            className="h-4 w-4"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden
-          >
-            <path d="M12 3v12" />
-            <path d="m7 10 5 5 5-5" />
-            <path d="M5 21h14" />
-          </svg>
-          Save image
-        </button> */}
-      </div>
-
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       {visibleData.networks.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 px-6 py-16 text-center">
+        <div className="flex min-h-0 flex-1 flex-col items-center justify-center border border-dashed border-zinc-300 bg-zinc-50 px-6 py-16 text-center">
           <p className="text-lg font-semibold text-zinc-800">
             No networks to show
           </p>
@@ -291,29 +220,24 @@ export function ViewingGuideTable({
             Uncheck &ldquo;Hide ESPN+&rdquo; to see streaming games for this
             week.
           </p>
-          {/* Toolbar control is sm+ only; keep a mobile escape hatch when the grid is gone. */}
           {hasEspnPlus ? (
-            <label className="mt-6 inline-flex cursor-pointer select-none items-center gap-2.5 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-800 shadow-sm transition hover:bg-zinc-50 sm:hidden">
-              <input
-                type="checkbox"
-                className="h-4 w-4 rounded border-zinc-300 accent-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600/40 focus:ring-offset-1"
-                checked={hideEspnPlus}
-                onChange={(e) => setHideEspnPlus(e.target.checked)}
+            <div className="mt-6">
+              <MobileCalendarFilter
+                hideEspnPlus={hideEspnPlus}
+                onHideEspnPlusChange={onHideEspnPlusChange}
               />
-              <span>Hide ESPN+</span>
-            </label>
+            </div>
           ) : null}
         </div>
       ) : (
         <div
           ref={containerRef}
           className={cn(
-            "min-h-0 border border-zinc-200 bg-white shadow-sm max-sm:flex-1 max-sm:overflow-auto sm:rounded-xl",
-            // Mobile: one scrollport (x + y) so hour header can stick inside it.
-            // Desktop/tablet: horizontal scroll only; page scrolls vertically.
+            // Full-bleed scrollport (x + y) so sticky headers work edge-to-edge.
+            "min-h-0 flex-1 border-y border-zinc-200 bg-white",
             applyFitToScreen
-              ? "sm:overflow-x-hidden sm:overflow-y-visible"
-              : "sm:overflow-x-auto sm:overflow-y-visible",
+              ? "overflow-x-hidden overflow-y-auto"
+              : "overflow-auto",
           )}
         >
           <CalendarGrid
@@ -323,16 +247,7 @@ export function ViewingGuideTable({
             fitWidth={applyFitToScreen}
             networkLogoDensity={networkLogoDensity}
             className="viewing-guide-table"
-            networkCorner={
-              hasEspnPlus ? (
-                <MobileCalendarFilter
-                  hideEspnPlus={hideEspnPlus}
-                  onHideEspnPlusChange={setHideEspnPlus}
-                />
-              ) : (
-                <span className="sr-only">Network</span>
-              )
-            }
+            networkCorner={filterControl}
           />
         </div>
       )}
