@@ -68,37 +68,14 @@ export function WeekNav({
         )}
       </div>
 
-      {/* Week pills — large desktop */}
-      <div className="hidden flex-wrap items-center gap-1.5 lg:flex">
-        {weeks.map((w) => {
-          const active = w === week;
-          return (
-            <Link
-              key={w}
-              href={weekPath(year, w)}
-              className={
-                active
-                  ? "rounded-md bg-emerald-700 px-2.5 py-1 text-xs font-bold text-white shadow-sm"
-                  : "rounded-md bg-zinc-100 px-2.5 py-1 text-xs font-semibold text-zinc-600 transition hover:bg-zinc-200"
-              }
-              aria-current={active ? "page" : undefined}
-            >
-              {w}
-            </Link>
-          );
-        })}
-      </div>
-
       {/*
         Mobile: [←] Week · Season [→]
-        sm–lg: Week · Season only (labeled prev/next above)
-        lg+: season only (week pills handle week jumps)
+        sm+: Week · Season (labeled prev/next above)
       */}
       <div
         className={cn(
           "flex items-center gap-2 sm:gap-3",
           "max-sm:w-full max-sm:justify-between",
-          "lg:contents",
         )}
       >
         {prev != null ? (
@@ -115,8 +92,8 @@ export function WeekNav({
           </span>
         )}
 
-        <div className="flex min-w-0 flex-1 flex-wrap items-center justify-center gap-3 sm:flex-initial sm:justify-start lg:contents">
-          <div className="flex items-center gap-2 lg:hidden">
+        <div className="flex min-w-0 flex-1 flex-wrap items-center justify-center gap-3 sm:flex-initial sm:justify-start">
+          <div className="flex items-center gap-2">
             <span className="text-xs font-medium text-zinc-500" id="week-label">
               Week
             </span>
@@ -138,7 +115,7 @@ export function WeekNav({
               </select>
               <ChevronDown className="pointer-events-none absolute top-1/2 right-2 size-4 -translate-y-1/2 text-muted-foreground" />
             </div>
-            {/* Custom select on sm+ */}
+            {/* Custom select on sm+ (all larger breakpoints) */}
             <div className="hidden sm:block">
               <Select
                 value={week}
