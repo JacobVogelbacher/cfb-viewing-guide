@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const siteName = "CFB Viewing Guide";
+const siteName = "CFB TV Guide";
 const siteDescription =
   "College football TV viewing guide — games by network and kickoff time, week by week.";
 

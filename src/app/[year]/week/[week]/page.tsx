@@ -22,11 +22,11 @@ export async function generateMetadata({
     return { title: "Not found" };
   }
   return {
-    // Root layout template appends "· CFB Viewing Guide"
+    // Root layout template appends "· CFB TV Guide"
     title: `Week ${week} · ${year}`,
     description: `College football TV schedule for Week ${week} of the ${year} season — network-by-network.`,
     openGraph: {
-      title: `Week ${week} · ${year} · CFB Viewing Guide`,
+      title: `Week ${week} · ${year} · CFB TV Guide`,
       description: `College football TV schedule for Week ${week} of the ${year} season — network-by-network.`,
     },
   };
