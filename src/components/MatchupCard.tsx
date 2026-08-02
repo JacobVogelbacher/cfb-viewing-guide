@@ -18,9 +18,10 @@ function TeamLogo({
       title={name}
     >
       {logo ? (
-        // Native img (not next/image) so export can use CORS / proxy inlining.
-        // crossOrigin must be set before load so html-to-image can paint remote
-        // logos (ESPN CDN sends Access-Control-Allow-Origin: *).
+        // Native img (not next/image) so calendar export can rewrite/proxy src.
+        // Do NOT set crossOrigin here: CFBD CDN only allows localhost CORS, not
+        // production. Display does not need CORS; export uses ensureCorsLoaded
+        // + /api/image-proxy (see download-image.ts).
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={logo}
@@ -29,9 +30,6 @@ function TeamLogo({
           height={size}
           className="h-full w-full object-contain"
           draggable={false}
-          crossOrigin={
-            /^https?:\/\//i.test(logo) ? "anonymous" : undefined
-          }
         />
       ) : (
         <span

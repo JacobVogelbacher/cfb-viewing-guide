@@ -115,9 +115,25 @@ function isRemoteHttpUrl(src: string): boolean {
 }
 
 /**
+ * CFBD CDN only reflects localhost in Access-Control-Allow-Origin (not
+ * production). Skip the doomed CORS reload and proxy immediately.
+ */
+function hostLikelyBlocksCors(src: string): boolean {
+  try {
+    const host = new URL(src, window.location.href).hostname;
+    return (
+      host === "collegefootballdata.com" ||
+      host.endsWith(".collegefootballdata.com")
+    );
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Prefer loading the original CDN URL with CORS so html-to-image can paint it.
- * ESPN team logos send Access-Control-Allow-Origin: * — this avoids a slow
- * round-trip through /api/image-proxy for every logo (critical on mobile prod).
+ * ESPN sends Access-Control-Allow-Origin: * (fast path). CFBD's CDN only
+ * reflects localhost origins, so production falls through to the proxy.
  */
 async function ensureCorsLoaded(img: HTMLImageElement, src: string): Promise<void> {
   if (
@@ -160,7 +176,7 @@ async function inlineViaProxy(img: HTMLImageElement, src: string): Promise<void>
  *
  * Strategy:
  * 1. Same-origin assets — leave alone (network SVGs under /public).
- * 2. Remote logos — load with crossOrigin=anonymous (ESPN allows *).
+ * 2. Remote logos — try crossOrigin=anonymous (ESPN allows *; CFBD often does not).
  * 3. If CORS load fails — proxy to a data URL via /api/image-proxy.
  *
  * Uses bounded concurrency + timeouts so a slow CDN/proxy cannot stall
@@ -197,17 +213,25 @@ export async function inlineImagesForExport(
     });
 
     try {
-      await ensureCorsLoaded(img, src);
-    } catch (corsErr) {
-      try {
+      if (hostLikelyBlocksCors(src)) {
         await inlineViaProxy(img, src);
-      } catch (proxyErr) {
-        console.warn("[export] logo prepare failed", src, {
-          cors: corsErr,
-          proxy: proxyErr,
-        });
-        // Leave original; capture may omit this logo rather than fail entirely.
+      } else {
+        try {
+          await ensureCorsLoaded(img, src);
+        } catch (corsErr) {
+          try {
+            await inlineViaProxy(img, src);
+          } catch (proxyErr) {
+            console.warn("[export] logo prepare failed", src, {
+              cors: corsErr,
+              proxy: proxyErr,
+            });
+            // Leave original; capture may omit this logo rather than fail entirely.
+          }
+        }
       }
+    } catch (proxyErr) {
+      console.warn("[export] logo prepare failed", src, { proxy: proxyErr });
     }
   });
 
